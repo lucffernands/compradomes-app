@@ -4,29 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Compra do Mês</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
 </head>
-<body class="bg-gray-50 p-4">
-  <h1 class="text-2xl font-bold mb-4">Compra do Mês</h1>
+<body>
 
-  <div class="mb-4">
-    <label class="block mb-1">Digite os supermercados separados por vírgula:</label>
-    <input type="text" id="stores-input" class="border rounded p-2 w-full" placeholder="Ex: Extra, Pão de Açúcar, Carrefour">
+  <div class="container">
+    <h1>Compra do Mês</h1>
+
+    <!-- Aviso sobre mercados online -->
+    <div class="alert">
+      <p><strong>Atenção:</strong> Digite somente supermercados que possuem <strong>compra online</strong>.</p>
+    </div>
+
+    <!-- Formulário de entrada -->
+    <div class="form-group">
+      <label>Produtos (separados por vírgula):</label>
+      <input id="products-input" type="text" placeholder="Ex: cebola, tomate, batata">
+
+      <label>Supermercados (separados por vírgula):</label>
+      <input id="stores-input" type="text" placeholder="Ex: Extra, Carrefour">
+
+      <button id="search-btn">Buscar preços</button>
+    </div>
+
+    <div id="results"></div>
   </div>
 
-  <div class="mb-4">
-    <label class="block mb-1">Digite os produtos separados por vírgula:</label>
-    <input type="text" id="products-input" class="border rounded p-2 w-full" placeholder="Ex: cebola, tomate, batata">
-  </div>
-
-  <button id="search-btn" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600">Comparar preços</button>
-
-  <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
-  <div id="results" class="overflow-x-auto">
-    <!-- Tabela será gerada aqui -->
-  </div>
-
-  <script src="app.js"></script>
 </body>
 </html>

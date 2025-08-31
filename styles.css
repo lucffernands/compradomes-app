@@ -1,13 +1,56 @@
-/* Estilos customizados além do Tailwind */
-
 body {
-  font-family: system-ui, sans-serif;
+  background-color: #f3f4f6;
+  font-family: Arial, sans-serif;
+  padding: 1rem;
 }
 
-table th {
-  background-color: #f3f4f6; /* cinza claro */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-table td, table th {
-  text-align: center;
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.alert {
+  background-color: #FEF3C7;
+  border-left: 4px solid #FBBF24;
+  color: #92400E;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+}
+
+#search-btn {
+  margin-top: 1rem;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#search-btn:hover {
+  background-color: #2563EB;
+}
+
+#results {
+  margin-top: 2rem;
 }
