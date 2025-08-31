@@ -1,0 +1,13 @@
+/* Estilos customizados além do Tailwind */
+
+body {
+  font-family: system-ui, sans-serif;
+}
+
+table th {
+  background-color: #f3f4f6; /* cinza claro */
+}
+
+table td, table th {
+  text-align: center;
+}
