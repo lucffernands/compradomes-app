@@ -27,6 +27,7 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
+/* Aviso */
 .alert {
   background-color: #FEF3C7;
   border-left: 6px solid #FBBF24;
@@ -38,6 +39,7 @@ h1 {
   font-weight: bold;
 }
 
+/* Formulário de busca */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -72,6 +74,23 @@ h1 {
 
 #search-btn:hover {
   background-color: #059669;
+}
+
+/* Inputs e select uniformes */
+input[type="text"],
+#stores-select {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-top: 0.25rem;
+  box-sizing: border-box;
+}
+
+/* Ajuste da altura do select para múltiplas opções */
+#stores-select {
+  height: 150px; /* igual ou um pouco maior para múltiplas opções */
 }
 
 /* Resultados */
