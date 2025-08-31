@@ -1,31 +1,36 @@
 name: Scraper e Deploy
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # Permite rodar manualmente no GitHub
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "0 12 * * *"  # Opcional: roda todo dia ao meio-dia
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Pega o repositório
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # 2️⃣ Configura Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # 3️⃣ Instala dependências (caso use alguma no futuro)
       - name: Instalar dependências
         working-directory: scrapers
-        run: npm install
+        run: npm install || echo "Sem dependências"
 
-      - name: Rodar scraper
+      # 4️⃣ Roda o scraper genérico
+      - name: Rodar scraper genérico
         working-directory: scrapers
         run: node scrape.cjs
 
+      # 5️⃣ Publica no GitHub Pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
