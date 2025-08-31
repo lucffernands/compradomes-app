@@ -134,3 +134,43 @@ button:hover {
     transform: translateX(0);
   }
 }
+
+/* Mobile: mostra apenas o select */
+.mobile-only {
+  display: block;
+}
+.desktop-only {
+  display: none;
+}
+
+/* Desktop: mostra apenas os checkboxes */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  .desktop-only {
+    display: block;
+  }
+
+  /* estilo para deixar os checkboxes mais bonitos */
+  #stores-desktop label {
+    display: inline-block;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  #stores-desktop label:hover {
+    background: #ffe7a0;
+    border-color: #f1c40f;
+  }
+
+  #stores-desktop input[type="checkbox"] {
+    margin-right: 6px;
+  }
+}
+
