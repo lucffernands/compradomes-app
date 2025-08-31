@@ -15,25 +15,8 @@ document.getElementById("search-btn").addEventListener("click", async () => {
     let output = "<h2>Resultados:</h2><ul>";
 
     products.forEach(product => {
-      if (!data.products[product]) {
-        output += `<li>${product}: Não disponível</li>`;
-        return;
-      }
-
-      // filtra apenas supermercados digitados
-      const available = Object.entries(data.products[product])
-        .filter(([store, info]) => stores.includes(store));
-
-      if (available.length === 0) {
-        output += `<li>${product}: Não disponível nos supermercados escolhidos</li>`;
-        return;
-      }
-
-      // escolhe o menor preço
-      available.sort((a, b) => a[1].price - b[1].price);
-      const [bestStore, bestInfo] = available[0];
-
-      output += `<li>${product}: R$ ${bestInfo.price.toFixed(2)} em ${bestStore}</li>`;
+      // Como JSON está vazio, mostra mensagem de teste
+      output += `<li>${product}: Disponível para teste (digite supermercados acima)</li>`;
     });
 
     output += "</ul>";
