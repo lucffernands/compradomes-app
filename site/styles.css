@@ -94,6 +94,15 @@ input[type="text"],
   overflow-y: auto; /* caso tenha mais opções que caibam na altura */
 }
 
+/* Espaçamento entre os elementos do formulário */
+.form-group label,
+.form-group input,
+.form-group select,
+.form-group button {
+  display: block;
+  margin-bottom: 1rem; /* mesma distância entre todos os elementos */
+}
+
 /* Resultados */
 .results-container {
   margin-top: 2rem;
