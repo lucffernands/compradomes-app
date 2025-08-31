@@ -1,9 +1,9 @@
-name: Scraper
+name: Scraper e Deploy
 
 on:
-  workflow_dispatch:   # dispara manualmente
+  workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"   # (opcional) roda todo dia às 12h UTC
+    - cron: "0 12 * * *"
 
 jobs:
   scrape:
@@ -27,10 +27,17 @@ jobs:
       - name: Copiar dados para o site
         run: cp data/prices.json site/prices.json
 
-      - name: Commit e push dos dados
+      - name: Commit dados atualizados
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add data/prices.json site/prices.json
           git commit -m "Atualizando preços via scraper" || echo "Nada para commitar"
           git push
+
+      - name: Deploy para GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./site
