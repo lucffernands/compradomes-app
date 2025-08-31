@@ -6,24 +6,11 @@ document.getElementById("search-btn").addEventListener("click", async () => {
   const stores = storesInput.split(",").map(s => s.trim());
 
   const resDiv = document.getElementById("results");
-  resDiv.innerHTML = "Carregando preços...";
+  resDiv.innerHTML = "<ul>";
 
-  try {
-    const response = await fetch("prices.json");
-    const data = await response.json();
+  products.forEach(product => {
+    resDiv.innerHTML += `<li>${product}: Disponível para teste (digite supermercados acima)</li>`;
+  });
 
-    let output = "<h2>Resultados:</h2><ul>";
-
-    products.forEach(product => {
-      // Como JSON está vazio, mostra mensagem de teste
-      output += `<li>${product}: Disponível para teste (digite supermercados acima)</li>`;
-    });
-
-    output += "</ul>";
-    resDiv.innerHTML = output;
-
-  } catch (err) {
-    resDiv.innerHTML = "Erro ao carregar preços.";
-    console.error(err);
-  }
+  resDiv.innerHTML += "</ul>";
 });
