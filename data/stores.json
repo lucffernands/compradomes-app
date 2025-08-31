@@ -1,0 +1,20 @@
+{
+  "carrefour": {
+    "baseUrl": "https://mercado.carrefour.com.br/busca?q=",
+    "selectors": {
+      "card": ".product-card",
+      "title": ".product-card__title",
+      "price": ".product-card__price",
+      "link": "a"
+    }
+  },
+  "pao de acucar": {
+    "baseUrl": "https://www.paodeacucar.com/busca?q=",
+    "selectors": {
+      "card": "[data-testid='product-card']",
+      "title": ".product-title",
+      "price": ".price",
+      "link": "a"
+    }
+  }
+}
