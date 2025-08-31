@@ -8,26 +8,41 @@
   <script src="app.js" defer></script>
 </head>
 <body>
-
   <div class="container">
     <h1>Compra do Mês</h1>
 
     <div class="alert slide-in">
-      <p><strong>Atenção:</strong> Digite somente supermercados que possuem <strong>compra online</strong>.</p>
+      <p><strong>Atenção:</strong> Escolha somente supermercados que possuem <strong>compra online</strong>.</p>
     </div>
 
     <form class="form-group">
       <label for="products-input">Produtos (separados por vírgula):</label>
       <input id="products-input" type="text" placeholder="Ex: cebola, tomate, batata">
 
-      <!-- Substituímos o input pelo container do fragmento -->
-      <div id="stores-container"></div>
+      <!-- Select para mobile -->
+      <label for="stores-mobile" class="mobile-only">Supermercados:</label>
+      <select id="stores-mobile" multiple class="mobile-only">
+        <option value="GoodBom">GoodBom</option>
+        <option value="Paulistão">Paulistão</option>
+        <option value="Enxuto">Enxuto</option>
+        <option value="Covabra">Covabra</option>
+        <option value="Tenda">Tenda</option>
+      </select>
+
+      <!-- Checkboxes para desktop -->
+      <div id="stores-desktop" class="desktop-only">
+        <p>Supermercados:</p>
+        <label><input type="checkbox" value="GoodBom"> GoodBom</label>
+        <label><input type="checkbox" value="Paulistão"> Paulistão</label>
+        <label><input type="checkbox" value="Enxuto"> Enxuto</label>
+        <label><input type="checkbox" value="Covabra"> Covabra</label>
+        <label><input type="checkbox" value="Tenda"> Tenda</label>
+      </div>
 
       <button id="search-btn" type="button">Buscar preços</button>
     </form>
 
     <div id="results" class="results-container"></div>
   </div>
-
 </body>
 </html>
