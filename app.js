@@ -1,15 +1,37 @@
+// Função para carregar dropdown de supermercados por cidade
+async function loadStores(city = "hortolandia") {
+  try {
+    const res = await fetch(`fragments/stores_${city}.html`);
+    const html = await res.text();
+    document.getElementById("stores-container").innerHTML = html;
+  } catch (err) {
+    console.error("Erro ao carregar supermercados:", err);
+  }
+}
+
+// Carrega os supermercados ao iniciar
+loadStores();
+
+// Evento do botão buscar preços
 document.getElementById("search-btn").addEventListener("click", async () => {
   const productsInput = document.getElementById("products-input").value;
-  const storesInput = document.getElementById("stores-input").value;
-
   const products = productsInput.split(",").map(p => p.trim().toLowerCase());
-  const stores = storesInput.split(",").map(s => s.trim());
+
+  // Lê os supermercados selecionados
+  const storesSelect = document.getElementById("stores-select");
+  const stores = Array.from(storesSelect.selectedOptions).map(option => option.value);
 
   const resDiv = document.getElementById("results");
   resDiv.innerHTML = ""; // limpa resultados anteriores
 
+  if (!products.length || !stores.length) {
+    resDiv.innerHTML = "<p class='slide-in'>Digite produtos e selecione pelo menos um supermercado!</p>";
+    return;
+  }
+
+  // Cria lista de produtos com animação sequencial
   const ul = document.createElement("ul");
-  ul.classList.add("staggered"); // animação sequencial
+  ul.classList.add("staggered");
 
   products.forEach(product => {
     const li = document.createElement("li");
