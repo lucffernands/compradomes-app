@@ -20,29 +20,8 @@
       <label for="products-input">Produtos (separados por vírgula):</label>
       <input id="products-input" type="text" placeholder="Ex: cebola, tomate, batata">
 
-      <!-- Escolha dos supermercados (MOBILE: select) -->
-      <div class="mobile-only">
-        <label for="stores-select">Supermercados:</label>
-        <select id="stores-select" multiple>
-          <option value="GoodBom">GoodBom</option>
-          <option value="São Vicente">São Vicente</option>
-          <option value="Assaí">Assaí</option>
-          <option value="Atacadão">Atacadão</option>
-          <option value="Extra">Extra</option>
-          <option value="Carrefour">Carrefour</option>
-        </select>
-      </div>
-
-      <!-- Escolha dos supermercados (DESKTOP: checkboxes) -->
-      <div class="desktop-only" id="stores-desktop">
-        <p>Supermercados:</p>
-        <label><input type="checkbox" value="GoodBom"> GoodBom</label>
-        <label><input type="checkbox" value="São Vicente"> São Vicente</label>
-        <label><input type="checkbox" value="Assaí"> Assaí</label>
-        <label><input type="checkbox" value="Atacadão"> Atacadão</label>
-        <label><input type="checkbox" value="Extra"> Extra</label>
-        <label><input type="checkbox" value="Carrefour"> Carrefour</label>
-      </div>
+      <!-- Supermercados serão carregados do fragment -->
+      <div id="stores-container"></div>
 
       <!-- Botão -->
       <button id="search-btn" type="button">Buscar preços</button>
