@@ -88,9 +88,10 @@ input[type="text"],
   box-sizing: border-box;
 }
 
-/* Ajuste da altura do select para múltiplas opções */
+/* Para que o select com múltiplas opções tenha mesma altura do input */
 #stores-select {
-  height: 150px; /* igual ou um pouco maior para múltiplas opções */
+  height: 40px; /* mesma altura do input de produtos */
+  overflow-y: auto; /* caso tenha mais opções que caibam na altura */
 }
 
 /* Resultados */
