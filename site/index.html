@@ -4,33 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Compra do Mês</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <header class="p-4 bg-green-600 text-white text-center font-bold text-xl">
-    Compra do Mês
-  </header>
+<body class="bg-gray-50 p-4">
+  <h1 class="text-2xl font-bold mb-4">Compra do Mês</h1>
 
-  <main class="p-4 space-y-6">
-    <section id="product-form" class="bg-white shadow-md rounded-lg p-4">
-      <h2 class="text-lg font-semibold mb-2">Adicionar produto</h2>
-      <form id="add-product" class="flex gap-2">
-        <input id="product-input" type="text" placeholder="Ex: cebola" class="flex-1 border p-2 rounded">
-        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Adicionar</button>
-      </form>
-    </section>
+  <div class="mb-4">
+    <label class="block mb-1">Digite os supermercados separados por vírgula:</label>
+    <input type="text" id="stores-input" class="border rounded p-2 w-full" placeholder="Ex: Extra, Pão de Açúcar, Carrefour">
+  </div>
 
-    <section id="comparison" class="bg-white shadow-md rounded-lg p-4">
-      <h2 class="text-lg font-semibold mb-2">Comparação</h2>
-      <div id="comparison-list" class="overflow-x-auto"></div>
-    </section>
+  <div class="mb-4">
+    <label class="block mb-1">Digite os produtos separados por vírgula:</label>
+    <input type="text" id="products-input" class="border rounded p-2 w-full" placeholder="Ex: cebola, tomate, batata">
+  </div>
 
-    <section id="summary" class="bg-white shadow-md rounded-lg p-4">
-      <h2 class="text-lg font-semibold mb-2">Resumo</h2>
-      <div id="summary-content"></div>
-    </section>
-  </main>
+  <button id="search-btn" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600">Comparar preços</button>
+
+  <h2 class="text-xl font-semibold mb-2">Resultado:</h2>
+  <div id="results" class="overflow-x-auto">
+    <!-- Tabela será gerada aqui -->
+  </div>
 
   <script src="app.js"></script>
 </body>
