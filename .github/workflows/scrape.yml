@@ -19,10 +19,12 @@ jobs:
           node-version: '18'
 
       - name: Instalar dependências
+        working-directory: scrapers
         run: npm install
 
       - name: Rodar scraper
-        run: node scrapers/scrape.js
+        working-directory: scrapers
+        run: node scrape.js
 
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
