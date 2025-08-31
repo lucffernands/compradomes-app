@@ -1,5 +1,5 @@
 async function loadPrices() {
-  const res = await fetch('../data/prices.json');
+  const res = await fetch('prices.json');
   if (!res.ok) {
     console.error('Erro ao carregar prices.json');
     return null;
