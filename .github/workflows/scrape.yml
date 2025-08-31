@@ -24,17 +24,6 @@ jobs:
       - name: Rodar scraper
         run: node scrapers/scrape.js
 
-      - name: Copiar dados para o site
-        run: cp data/prices.json site/prices.json
-
-      - name: Commit dados atualizados
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git add data/prices.json site/prices.json
-          git commit -m "Atualizando preços via scraper" || echo "Nada para commitar"
-          git push
-
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
