@@ -24,7 +24,7 @@ jobs:
 
       - name: Rodar scraper
         working-directory: scrapers
-        run: node scrape.js
+        run: node scrape.cjs
 
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
