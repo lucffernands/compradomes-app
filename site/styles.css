@@ -76,22 +76,18 @@ h1 {
   background-color: #059669;
 }
 
-/* Inputs e select uniformes */
-input[type="text"],
+/* Select uniforme */
 #stores-select {
   width: 100%;
   padding: 0.7rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
-  margin-top: 0.25rem;
   box-sizing: border-box;
-}
 
-/* Para que o select com múltiplas opções tenha mesma altura do input */
-#stores-select {
-  height: 40px; /* mesma altura do input de produtos */
-  overflow-y: auto; /* caso tenha mais opções que caibam na altura */
+  /* Altura maior para desktop */
+  height: 150px; /* suficiente para ver múltiplas opções */
+  overflow-y: auto; /* scroll caso haja mais opções */
 }
 
 /* Espaçamento entre os elementos do formulário */
