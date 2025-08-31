@@ -13,9 +13,19 @@ async function loadStores(city = "hortolandia") {
 loadStores();
 
 // Evento do botão buscar preços
-document.getElementById("search-btn").addEventListener("click", async () => {
-  const productsInput = document.getElementById("products-input").value;
-  const products = productsInput.split(",").map(p => p.trim().toLowerCase());
+document.getElementById("search-btn").addEventListener("click", () => {
+  const products = document.getElementById("products-input").value
+    .split(",")
+    .map(p => p.trim())
+    .filter(p => p);
+
+  const stores = Array.from(document.querySelectorAll('input[name="stores"]:checked'))
+    .map(el => el.value);
+
+  console.log("Produtos:", products);
+  console.log("Mercados selecionados:", stores);
+});
+
 
   // Lê os supermercados selecionados
   const storesSelect = document.getElementById("stores-select");
