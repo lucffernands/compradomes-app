@@ -92,3 +92,45 @@ h1 {
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
   text-align: center;
 }
+
+/* Animação deslizante da direita */
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animação do aviso e resultados */
+.slide-in {
+  animation: slideInRight 0.5s ease forwards;
+}
+
+/* Animação sequencial para os cards de produtos */
+@keyframes slideInRightStagger {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.staggered li {
+  opacity: 0;
+  transform: translateX(100%);
+  animation: slideInRightStagger 0.5s ease forwards;
+}
+
+.staggered li:nth-child(1) { animation-delay: 0.1s; }
+.staggered li:nth-child(2) { animation-delay: 0.2s; }
+.staggered li:nth-child(3) { animation-delay: 0.3s; }
+.staggered li:nth-child(4) { animation-delay: 0.4s; }
+.staggered li:nth-child(5) { animation-delay: 0.5s; }
+/* Continue a sequência caso tenha mais produtos */
