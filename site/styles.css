@@ -89,6 +89,30 @@ button:hover {
   background: #15803d;
 }
 
+/* Estilização dos checkboxes */
+.stores-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.store-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.store-options label {
+  font-weight: normal;
+  color: #333;
+  cursor: pointer;
+}
+
+
 /* Resultados */
 .results-container {
   margin-top: 2rem;
