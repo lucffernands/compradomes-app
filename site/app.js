@@ -6,11 +6,16 @@ document.getElementById("search-btn").addEventListener("click", async () => {
   const stores = storesInput.split(",").map(s => s.trim());
 
   const resDiv = document.getElementById("results");
-  resDiv.innerHTML = "<ul>";
+  resDiv.innerHTML = ""; // limpa resultados anteriores
+
+  const ul = document.createElement("ul");
+  ul.classList.add("staggered"); // animação sequencial
 
   products.forEach(product => {
-    resDiv.innerHTML += `<li>${product}: Disponível para teste (digite supermercados acima)</li>`;
+    const li = document.createElement("li");
+    li.textContent = `${product}: Disponível para teste (digite supermercados acima)`;
+    ul.appendChild(li);
   });
 
-  resDiv.innerHTML += "</ul>";
+  resDiv.appendChild(ul);
 });
