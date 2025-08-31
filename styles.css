@@ -3,159 +3,110 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-  background-color: #f7fafc;
-  font-family: 'Arial', sans-serif;
-  color: #111827;
+  background: #f9fafb;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
 }
 
+/* Container principal */
 .container {
-  max-width: 720px;
-  margin: 2rem auto;
+  background: #fff;
   padding: 2rem;
-  background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 700px;
+  width: 100%;
+  animation: slideIn 0.6s ease-out;
 }
 
+/* Título */
 h1 {
   text-align: center;
-  font-size: 2.5rem;
-  color: #059669;
+  color: #16a34a;
   margin-bottom: 1.5rem;
 }
 
 /* Aviso */
 .alert {
-  background-color: #FEF3C7;
-  border-left: 6px solid #FBBF24;
-  color: #92400E;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
   padding: 1rem;
-  margin-bottom: 2rem;
-  border-radius: 6px;
-  text-align: center;
-  font-weight: bold;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  animation: slideIn 0.8s ease-out;
 }
 
-/* Formulário de busca */
+/* Formulário */
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  text-align: center;
 }
 
-.form-group label {
+label {
   font-weight: bold;
+  color: #444;
 }
 
-.form-group input {
-  padding: 0.7rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  width: 100%;
-}
-
-#search-btn {
-  background-color: #10B981;
-  color: white;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  width: 100%;
-}
-
-#search-btn:hover {
-  background-color: #059669;
-}
-
-/* Select uniforme */
-#stores-select {
+input[type="text"],
+select {
   width: 100%;
   padding: 0.7rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
   box-sizing: border-box;
-
-  /* Altura maior para desktop */
-  height: 150px; /* suficiente para ver múltiplas opções */
-  overflow-y: auto; /* scroll caso haja mais opções */
 }
 
-/* Espaçamento entre os elementos do formulário */
-.form-group label,
-.form-group input,
-.form-group select,
-.form-group button {
-  display: block;
-  margin-bottom: 1rem; /* mesma distância entre todos os elementos */
+/* Select múltiplo (desktop) */
+#stores-select {
+  height: 150px;      /* espaço suficiente p/ várias opções */
+  overflow-y: auto;   /* rolagem se tiver muitos mercados */
+}
+
+/* Botão */
+button {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #15803d;
 }
 
 /* Resultados */
 .results-container {
   margin-top: 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.results-container li {
-  list-style: none;
-  background-color: #ECFDF5;
   padding: 1rem;
-  border-radius: 10px;
-  font-size: 1.05rem;
-  color: #065F46;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  text-align: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f3f4f6;
+  animation: slideIn 1s ease-out;
 }
 
-/* Animação deslizante da direita */
-@keyframes slideInRight {
-  0% {
+/* Animação */
+@keyframes slideIn {
+  from {
     opacity: 0;
-    transform: translateX(100%);
+    transform: translateX(50px);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translateX(0);
   }
 }
-
-/* Animação do aviso e resultados */
-.slide-in {
-  animation: slideInRight 0.5s ease forwards;
-}
-
-/* Animação sequencial para os cards de produtos */
-@keyframes slideInRightStagger {
-  0% {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.staggered li {
-  opacity: 0;
-  transform: translateX(100%);
-  animation: slideInRightStagger 0.5s ease forwards;
-}
-
-.staggered li:nth-child(1) { animation-delay: 0.1s; }
-.staggered li:nth-child(2) { animation-delay: 0.2s; }
-.staggered li:nth-child(3) { animation-delay: 0.3s; }
-.staggered li:nth-child(4) { animation-delay: 0.4s; }
-.staggered li:nth-child(5) { animation-delay: 0.5s; }
-/* Continue a sequência caso tenha mais produtos */
