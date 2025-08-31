@@ -1,120 +1,97 @@
+const productsInput = document.getElementById("products-input");
+const storesInput = document.getElementById("stores-input");
+const searchBtn = document.getElementById("search-btn");
+const resultsDiv = document.getElementById("results");
+
+let pricesData = {};
+
+// Carrega o prices.json
 async function loadPrices() {
-  const res = await fetch('prices.json');
-  if (!res.ok) {
-    console.error('Erro ao carregar prices.json');
-    return null;
-  }
-  return res.json();
+  const res = await fetch("prices.json");
+  pricesData = await res.json();
 }
 
-const state = {
-  prices: null,
-  selectedProducts: []
-};
+function comparePrices(selectedProducts, selectedStores) {
+  const table = document.createElement("table");
+  table.className = "table-auto border-collapse border border-gray-300 w-full mb-4";
 
-function renderComparison() {
-  const container = document.getElementById('comparison-list');
-  container.innerHTML = '';
-
-  if (state.selectedProducts.length === 0) {
-    container.innerHTML = '<p class="text-gray-500">Nenhum produto selecionado.</p>';
-    return;
-  }
-
-  const table = document.createElement('table');
-  table.className = 'min-w-full border border-gray-300 text-sm';
-
-  // Cabeçalho
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  headerRow.innerHTML = `
-    <th class="border p-2">Produto</th>
-    ${state.prices.stores.map(s => `<th class="border p-2">${s}</th>`).join('')}
-  `;
+  // Cabeçalho da tabela
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  ["Produto", "Melhor Preço em"].forEach(text => {
+    const th = document.createElement("th");
+    th.className = "border border-gray-300 px-2 py-1 bg-gray-100";
+    th.innerText = text;
+    headerRow.appendChild(th);
+  });
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // Corpo
-  const tbody = document.createElement('tbody');
-  for (const product of state.selectedProducts) {
-    const row = document.createElement('tr');
-    const prices = state.prices.products[product] || {};
-    row.innerHTML = `
-      <td class="border p-2 font-medium">${product}</td>
-      ${state.prices.stores.map(store => {
-        const it = prices[store];
-        return `<td class="border p-2">${it ? `R$ ${it.price.toFixed(2)}` : '-'}</td>`;
-      }).join('')}
-    `;
-    tbody.appendChild(row);
-  }
-  table.appendChild(tbody);
+  const tbody = document.createElement("tbody");
 
-  container.appendChild(table);
-}
-
-function renderSummary() {
-  const summaryDiv = document.getElementById('summary-content');
-  summaryDiv.innerHTML = '';
-
-  if (state.selectedProducts.length === 0) {
-    summaryDiv.innerHTML = '<p class="text-gray-500">Nenhum produto selecionado.</p>';
-    return;
-  }
-
+  // Totais por supermercado
   const totals = {};
-  for (const store of state.prices.stores) {
-    totals[store] = 0;
-  }
+  selectedStores.forEach(store => totals[store] = 0);
 
-  for (const product of state.selectedProducts) {
-    const prices = state.prices.products[product] || {};
+  selectedProducts.forEach(product => {
+    const row = document.createElement("tr");
+    const tdProduct = document.createElement("td");
+    tdProduct.className = "border border-gray-300 px-2 py-1";
+    tdProduct.innerText = product;
+    row.appendChild(tdProduct);
+
+    const tdBest = document.createElement("td");
+    tdBest.className = "border border-gray-300 px-2 py-1";
+
+    const productPrices = pricesData.products[product] || {};
     let best = null;
-    for (const store of state.prices.stores) {
-      if (prices[store]) {
-        if (!best || prices[store].price < best.price) {
-          best = { ...prices[store], store };
+    selectedStores.forEach(store => {
+      if (productPrices[store]) {
+        if (!best || productPrices[store].price < best.price) {
+          best = { store, price: productPrices[store].price };
         }
       }
-    }
+    });
+
     if (best) {
+      tdBest.innerText = `${best.store} (R$ ${best.price.toFixed(2)})`;
       totals[best.store] += best.price;
+    } else {
+      tdBest.innerText = "Não disponível";
     }
-  }
 
-  const entries = Object.entries(totals).map(([store, total]) => ({ store, total }));
-  entries.sort((a, b) => a.total - b.total);
+    row.appendChild(tdBest);
+    tbody.appendChild(row);
+  });
 
-  const ul = document.createElement('ul');
-  for (const e of entries) {
-    const li = document.createElement('li');
-    li.textContent = `${e.store}: R$ ${e.total.toFixed(2)}`;
-    ul.appendChild(li);
-  }
-  summaryDiv.appendChild(ul);
+  table.appendChild(tbody);
+  resultsDiv.innerHTML = "";
+  resultsDiv.appendChild(table);
 
-  const best = entries[0];
-  const p = document.createElement('p');
-  p.className = 'mt-2 font-bold text-green-700';
-  p.textContent = `Mais barato no ${best.store}: R$ ${best.total.toFixed(2)}`;
-  summaryDiv.appendChild(p);
+  // Mostrar resumo dos supermercados
+  const summary = document.createElement("div");
+  summary.className = "mb-4";
+  summary.innerHTML = "<h3 class='text-lg font-semibold mb-2'>Resumo Total:</h3>";
+
+  // Ordena pelo menor total
+  const sortedTotals = Object.entries(totals).sort((a,b) => a[1] - b[1]);
+  sortedTotals.forEach(([store, total]) => {
+    summary.innerHTML += `<p>${store}: R$ ${total.toFixed(2)}</p>`;
+  });
+
+  resultsDiv.appendChild(summary);
 }
 
-document.getElementById('add-product').addEventListener('submit', e => {
-  e.preventDefault();
-  const input = document.getElementById('product-input');
-  const value = input.value.trim();
-  if (value && !state.selectedProducts.includes(value)) {
-    state.selectedProducts.push(value);
-    renderComparison();
-    renderSummary();
+// Event listener
+searchBtn.addEventListener("click", () => {
+  const selectedProducts = productsInput.value.split(",").map(p => p.trim()).filter(p => p);
+  const selectedStores = storesInput.value.split(",").map(s => s.trim()).filter(s => s);
+  if (selectedProducts.length === 0 || selectedStores.length === 0) {
+    alert("Digite pelo menos um produto e um supermercado.");
+    return;
   }
-  input.value = '';
+  comparePrices(selectedProducts, selectedStores);
 });
 
-(async function init() {
-  state.prices = await loadPrices();
-  if (!state.prices) return;
-  renderComparison();
-  renderSummary();
-})();
+// Carrega os preços ao iniciar
+loadPrices();
