@@ -72,6 +72,17 @@ select {
   padding: 0.7rem;
   overflow-y: auto;   /* rolagem se tiver muitos mercados */
 }
+/* Desktop: select múltiplo */
+#products-select-desktop {
+  width: 100%;
+  height: 200px; /* define altura suficiente para rolagem */
+  padding: 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
 
 /* Botão */
 button {
@@ -88,30 +99,6 @@ button {
 button:hover {
   background: #15803d;
 }
-
-/* Estilização dos checkboxes */
-.stores-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.store-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.7rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.store-options label {
-  font-weight: normal;
-  color: #333;
-  cursor: pointer;
-}
-
 
 /* Resultados */
 .results-container {
@@ -151,39 +138,3 @@ button:hover {
   .desktop-only {
     display: block;
   }
-
-  /* estilo para deixar os checkboxes mais bonitos */
-  #stores-desktop label {
-    display: inline-block;
-    background: #f8f8f8;
-    border: 1px solid #ddd;
-    padding: 8px 12px;
-    margin: 5px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-
-  #stores-desktop label:hover {
-    background: #ffe7a0;
-    border-color: #f1c40f;
-  }
-
-  #stores-desktop input[type="checkbox"] {
-    margin-right: 6px;
-  }
-}
-
-/* Container dos checkboxes no desktop */
-#products-desktop .product-options {
-  max-height: 200px; /* altura máxima igual a do select */
-  overflow-y: auto;   /* adiciona barra de rolagem se necessário */
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
