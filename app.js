@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(html => {
       document.getElementById("products-container").innerHTML = html;
-      setupProductSelectActions();
     });
 
   // Carregar fragment dos supermercados
@@ -12,13 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(html => {
       document.getElementById("stores-container").innerHTML = html;
-    });
 
-  // Evento do botão de busca
-  const searchBtn = document.getElementById("search-btn");
-  if (searchBtn) {
-    searchBtn.addEventListener("click", handleSearch);
-  }
+      // Adicionar evento do botão após fragment ser injetado
+      const searchBtn = document.getElementById("search-btn");
+      searchBtn.addEventListener("click", handleSearch);
+
+      // Ativar "Selecionar todos / Desmarcar todos"
+      setupSelectAllButtons();
+    });
 });
 
 // -------- Funções utilitárias --------
@@ -30,7 +30,7 @@ function getSelectedFromSelect(selectId) {
   return Array.from(select.selectedOptions).map(option => option.value.trim());
 }
 
-// Produtos
+// Produtos selecionados
 function getSelectedProducts() {
   let products = [];
   products.push(...getSelectedFromSelect("products-select-mobile"));
@@ -38,7 +38,7 @@ function getSelectedProducts() {
   return products;
 }
 
-// Supermercados
+// Supermercados selecionados
 function getSelectedStores() {
   let stores = [];
   stores.push(...getSelectedFromSelect("stores-select")); // mobile
@@ -46,34 +46,32 @@ function getSelectedStores() {
   return stores;
 }
 
-// -------- Selecionar / desmarcar todos --------
+// -------- Selecionar / Desmarcar todos --------
 function toggleSelectAll(selectId, toggle) {
   const select = document.getElementById(selectId);
-  if (!select) return;
-  for (let option of select.options) {
-    option.selected = toggle;
+  if (select) {
+    for (let option of select.options) {
+      option.selected = toggle;
+    }
   }
 }
 
-// Configura os links de "Selecionar todos / Desmarcar todos" para produtos
-function setupProductSelectActions() {
-  const selectAllMobile = document.getElementById("select-all-products-mobile");
-  const deselectAllMobile = document.getElementById("deselect-all-products-mobile");
-  const selectAllDesktop = document.getElementById("select-all-products-desktop");
-  const deselectAllDesktop = document.getElementById("deselect-all-products-desktop");
+function setupSelectAllButtons() {
+  // MOBILE
+  document.getElementById("select-all-products-mobile")?.addEventListener("click", () => {
+    toggleSelectAll("products-select-mobile", true);
+  });
+  document.getElementById("deselect-all-products-mobile")?.addEventListener("click", () => {
+    toggleSelectAll("products-select-mobile", false);
+  });
 
-  if (selectAllMobile) {
-    selectAllMobile.addEventListener("click", () => toggleSelectAll("products-select-mobile", true));
-  }
-  if (deselectAllMobile) {
-    deselectAllMobile.addEventListener("click", () => toggleSelectAll("products-select-mobile", false));
-  }
-  if (selectAllDesktop) {
-    selectAllDesktop.addEventListener("click", () => toggleSelectAll("products-select-desktop", true));
-  }
-  if (deselectAllDesktop) {
-    deselectAllDesktop.addEventListener("click", () => toggleSelectAll("products-select-desktop", false));
-  }
+  // DESKTOP
+  document.getElementById("select-all-products-desktop")?.addEventListener("click", () => {
+    toggleSelectAll("products-select-desktop", true);
+  });
+  document.getElementById("deselect-all-products-desktop")?.addEventListener("click", () => {
+    toggleSelectAll("products-select-desktop", false);
+  });
 }
 
 // -------- Busca --------
