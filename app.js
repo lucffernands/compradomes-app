@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // carregar fragment dos supermercados dinamicamente
-  fetch("fragments/store_hortolandia.html")
+  fetch("fragments/stores_hortolandia.html")
     .then(response => response.text())
     .then(html => {
       document.getElementById("stores-container").innerHTML = html;
