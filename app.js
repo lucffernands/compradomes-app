@@ -16,74 +16,58 @@ document.addEventListener("DOMContentLoaded", () => {
       const searchBtn = document.getElementById("search-btn");
       searchBtn.addEventListener("click", handleSearch);
 
-      // Adicionar "Selecionar todos / Desmarcar todos" para produtos e supermercados
+      // Ativar "Selecionar todos / Desmarcar todos"
       setupSelectAllButtons();
     });
 });
 
-// Função para coletar itens selecionados de um select múltiplo
+// -------- Funções utilitárias --------
+
+// Coletar itens selecionados de um <select multiple>
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return [];
   return Array.from(select.selectedOptions).map(option => option.value.trim());
 }
 
-// Função para coletar itens selecionados de checkboxes
-function getSelectedFromCheckbox(containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return [];
-  const checkboxes = container.querySelectorAll("input[type='checkbox']:checked");
-  return Array.from(checkboxes).map(cb => cb.value.trim());
-}
-
-// Função para coletar produtos selecionados
+// Produtos
 function getSelectedProducts() {
   let products = [];
-
-  // Mobile
   products.push(...getSelectedFromSelect("products-select-mobile"));
-
-  // Desktop
   products.push(...getSelectedFromSelect("products-select-desktop"));
-
   return products;
 }
 
-// Função para coletar supermercados selecionados
+// Supermercados
 function getSelectedStores() {
   let stores = [];
-
-  // Mobile
-  stores.push(...getSelectedFromSelect("stores-select"));
-
-  // Desktop
-  stores.push(...getSelectedFromSelect("stores-select-desktop"));
-
+  stores.push(...getSelectedFromSelect("stores-select")); // mobile
+  stores.push(...getSelectedFromSelect("stores-select-desktop")); // desktop
   return stores;
 }
 
-// Função para selecionar/desmarcar todos itens de um select
+// -------- Select All / Deselect All --------
 function toggleSelectAll(selectId, toggle) {
   const select = document.getElementById(selectId);
-  if (!select) return;
-  for (let option of select.options) {
-    option.selected = toggle;
+  if (select) {
+    for (let option of select.options) {
+      option.selected = toggle;
+    }
   }
 }
 
-// Configura os botões "Selecionar todos / Desmarcar todos"
 function setupSelectAllButtons() {
   const selectAllButtons = document.querySelectorAll(".select-all-btn");
   selectAllButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      const selectId = btn.dataset.target;
+      const target = btn.dataset.target;
       const action = btn.dataset.action === "select";
-      toggleSelectAll(selectId, action);
+      toggleSelectAll(target, action);
     });
   });
 }
 
-// Função para tratar a busca
+// -------- Busca --------
 function handleSearch() {
   const resultsDiv = document.getElementById("results");
   const products = getSelectedProducts();
@@ -106,4 +90,4 @@ function handleSearch() {
   }
   html += "</ul>";
   resultsDiv.innerHTML = html;
-}
+    }
