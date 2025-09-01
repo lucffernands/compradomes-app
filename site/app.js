@@ -1,16 +1,20 @@
+const API_BASE = "https://seu-app-render.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
   searchBtn.addEventListener("click", handleSearch);
+
+  setupSelectAllProducts();
 });
 
-// Função para coletar itens selecionados de um <select multiple>
+// Coletar itens selecionados de um <select multiple>
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return [];
   return Array.from(select.selectedOptions).map(option => option.value.trim());
 }
 
-// Coleta produtos selecionados
+// Produtos selecionados
 function getSelectedProducts() {
   let products = [];
   products.push(...getSelectedFromSelect("products-select-mobile"));
@@ -18,32 +22,57 @@ function getSelectedProducts() {
   return products;
 }
 
-// Coleta supermercados selecionados
+// Supermercados selecionados
 function getSelectedStores() {
   let stores = [];
-  stores.push(...getSelectedFromSelect("stores-select"));
-  stores.push(...getSelectedFromSelect("stores-select-desktop"));
+  stores.push(...getSelectedFromSelect("stores-select")); 
+  stores.push(...getSelectedFromSelect("stores-select-desktop")); 
   return stores;
 }
 
-// Função para buscar preços reais
+// Buscar preços reais
 async function fetchPrices(products, stores) {
   const query = new URLSearchParams();
   query.append("products", products.join(","));
   query.append("stores", stores.join(","));
   
   try {
-    const response = await fetch(`/api/scrape?${query.toString()}`);
+    const response = await fetch(`${API_BASE}/api/scrape?${query.toString()}`);
     if (!response.ok) throw new Error("Erro na requisição");
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (err) {
     console.error(err);
     return null;
   }
 }
 
-// Função para tratar a busca
+// Selecionar / desmarcar todos produtos
+function toggleSelectAllProducts(toggle) {
+  const selects = ["products-select-mobile", "products-select-desktop"];
+  selects.forEach(id => {
+    const select = document.getElementById(id);
+    if (select) {
+      for (let option of select.options) {
+        option.selected = toggle;
+      }
+    }
+  });
+}
+
+// Configura os links “Selecionar todos / Desmarcar todos” para produtos
+function setupSelectAllProducts() {
+  const selectAll = document.getElementById("select-all-products");
+  const deselectAll = document.getElementById("deselect-all-products");
+
+  if (selectAll) {
+    selectAll.addEventListener("click", () => toggleSelectAllProducts(true));
+  }
+  if (deselectAll) {
+    deselectAll.addEventListener("click", () => toggleSelectAllProducts(false));
+  }
+}
+
+// Tratamento da busca
 async function handleSearch() {
   const resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "<p>Carregando...</p>";
@@ -55,7 +84,6 @@ async function handleSearch() {
     resultsDiv.innerHTML = "<p>⚠️ Selecione pelo menos um produto.</p>";
     return;
   }
-
   if (stores.length === 0) {
     resultsDiv.innerHTML = "<p>⚠️ Selecione pelo menos um supermercado.</p>";
     return;
