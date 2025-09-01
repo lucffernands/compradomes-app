@@ -15,14 +15,17 @@
       <p><strong>Atenção:</strong> Escolha apenas supermercados que possuem <strong>compra online</strong>.</p>
     </div>
 
+    <!-- Produtos -->
     <form class="form-group">
-      <!-- Produtos -->
-      <label for="products-input">Produtos (separados por vírgula):</label>
-      <input id="products-input" type="text" placeholder="Ex: cebola, tomate, batata">
-
+      <!-- Produtos serão carregados do fragment -->
+      <div id="products-container"></div>
       <!-- Supermercados serão carregados do fragment -->
       <div id="stores-container"></div>
-
+      <!-- Botão -->
+      <button id="search-btn" type="button">Buscar preços</button>
+    </form>
+      <!-- Supermercados serão carregados do fragment -->
+      <div id="stores-container"></div>
       <!-- Botão -->
       <button id="search-btn" type="button">Buscar preços</button>
     </form>
