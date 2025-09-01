@@ -67,23 +67,6 @@ select {
   box-sizing: border-box;
 }
 
-/* Select múltiplo (desktop) */
-#stores-select {
-  padding: 0.7rem;
-  overflow-y: auto;   /* rolagem se tiver muitos mercados */
-}
-/* Desktop: select múltiplo */
-#products-select-desktop {
-  width: 100%;
-  height: 200px; /* define altura suficiente para rolagem */
-  padding: 0.7rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
 /* Botão */
 button {
   background: #16a34a;
@@ -130,7 +113,7 @@ button:hover {
   display: none;
 }
 
-/* Desktop: mostra apenas os checkboxes */
+/* Desktop: mostra apenas select */
 @media (min-width: 768px) {
   .mobile-only {
     display: none;
