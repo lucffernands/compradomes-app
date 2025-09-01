@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(html => {
       document.getElementById("products-container").innerHTML = html;
+      setupProductSelectAll(); // configurar links de selecionar/desmarcar
     });
 
   // Carregar fragment dos supermercados
@@ -11,60 +12,60 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(html => {
       document.getElementById("stores-container").innerHTML = html;
-
-      // Adicionar eventos do botão após fragment injetado
-      const searchBtn = document.getElementById("search-btn");
-      searchBtn.addEventListener("click", handleSearch);
-
-      // Ativar "Selecionar todos / Desmarcar todos"
-      setupSelectAllButtons();
     });
+
+  // Evento do botão após tudo carregado
+  const searchBtn = document.getElementById("search-btn");
+  if (searchBtn) searchBtn.addEventListener("click", handleSearch);
 });
 
-// -------- Funções utilitárias --------
+// Função para selecionar/desmarcar todos itens de um select
+function toggleSelectAll(selectId, toggle) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  for (let option of select.options) {
+    option.selected = toggle;
+  }
+}
 
-// Coletar itens selecionados de um <select multiple>
+// Configura os spans "Selecionar todos / Desmarcar todos" para produtos
+function setupProductSelectAll() {
+  // Mobile
+  const selectAllMobile = document.getElementById("select-all-products");
+  const deselectAllMobile = document.getElementById("deselect-all-products");
+  if (selectAllMobile && deselectAllMobile) {
+    selectAllMobile.addEventListener("click", () => toggleSelectAll("products-select", true));
+    deselectAllMobile.addEventListener("click", () => toggleSelectAll("products-select", false));
+  }
+
+  // Desktop
+  const selectAllDesktop = document.getElementById("select-all-products-desktop");
+  const deselectAllDesktop = document.getElementById("deselect-all-products-desktop");
+  if (selectAllDesktop && deselectAllDesktop) {
+    selectAllDesktop.addEventListener("click", () => toggleSelectAll("products-select-desktop", true));
+    deselectAllDesktop.addEventListener("click", () => toggleSelectAll("products-select-desktop", false));
+  }
+}
+
+// -------- Coleta de itens selecionados --------
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return [];
   return Array.from(select.selectedOptions).map(option => option.value.trim());
 }
 
-// Produtos
 function getSelectedProducts() {
   let products = [];
-  products.push(...getSelectedFromSelect("products-select-mobile"));
-  products.push(...getSelectedFromSelect("products-select-desktop"));
+  products.push(...getSelectedFromSelect("products-select")); // Mobile
+  products.push(...getSelectedFromSelect("products-select-desktop")); // Desktop
   return products;
 }
 
-// Supermercados
 function getSelectedStores() {
   let stores = [];
-  stores.push(...getSelectedFromSelect("stores-select")); // mobile
-  stores.push(...getSelectedFromSelect("stores-select-desktop")); // desktop
+  stores.push(...getSelectedFromSelect("stores-select")); // Mobile
+  stores.push(...getSelectedFromSelect("stores-select-desktop")); // Desktop
   return stores;
-}
-
-// -------- Select All / Deselect All --------
-function toggleSelectAll(selectId, toggle) {
-  const select = document.getElementById(selectId);
-  if (select) {
-    for (let option of select.options) {
-      option.selected = toggle;
-    }
-  }
-}
-
-function setupSelectAllButtons() {
-  const selectAllButtons = document.querySelectorAll(".select-all-btn");
-  selectAllButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.target;
-      const action = btn.dataset.action === "select";
-      toggleSelectAll(target, action);
-    });
-  });
 }
 
 // -------- Busca --------
@@ -77,7 +78,6 @@ function handleSearch() {
     resultsDiv.innerHTML = "<p>⚠️ Selecione pelo menos um produto.</p>";
     return;
   }
-
   if (stores.length === 0) {
     resultsDiv.innerHTML = "<p>⚠️ Selecione pelo menos um supermercado.</p>";
     return;
@@ -90,4 +90,4 @@ function handleSearch() {
   }
   html += "</ul>";
   resultsDiv.innerHTML = html;
-    }
+}
