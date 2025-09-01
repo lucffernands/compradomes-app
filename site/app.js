@@ -1,36 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Carregar fragment dos produtos
-  fetch("fragments/products_hortolandia.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("products-container").innerHTML = html;
-    });
-
-  // Carregar fragment dos supermercados
-  fetch("fragments/stores_hortolandia.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("stores-container").innerHTML = html;
-
-      // Adicionar evento do botão após fragment ser injetado
-      const searchBtn = document.getElementById("search-btn");
-      searchBtn.addEventListener("click", handleSearch);
-
-      // Ativar "Selecionar todos / Desmarcar todos"
-      setupSelectAllButtons();
-    });
+  const searchBtn = document.getElementById("search-btn");
+  searchBtn.addEventListener("click", handleSearch);
 });
 
-// -------- Funções utilitárias --------
-
-// Coletar itens selecionados de um <select multiple>
+// Função para coletar itens selecionados de um <select multiple>
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return [];
   return Array.from(select.selectedOptions).map(option => option.value.trim());
 }
 
-// Produtos selecionados
+// Coleta produtos selecionados
 function getSelectedProducts() {
   let products = [];
   products.push(...getSelectedFromSelect("products-select-mobile"));
@@ -38,45 +18,36 @@ function getSelectedProducts() {
   return products;
 }
 
-// Supermercados selecionados
+// Coleta supermercados selecionados
 function getSelectedStores() {
   let stores = [];
-  stores.push(...getSelectedFromSelect("stores-select")); // mobile
-  stores.push(...getSelectedFromSelect("stores-select-desktop")); // desktop
+  stores.push(...getSelectedFromSelect("stores-select"));
+  stores.push(...getSelectedFromSelect("stores-select-desktop"));
   return stores;
 }
 
-// -------- Selecionar / Desmarcar todos --------
-function toggleSelectAll(selectId, toggle) {
-  const select = document.getElementById(selectId);
-  if (select) {
-    for (let option of select.options) {
-      option.selected = toggle;
-    }
+// Função para buscar preços reais
+async function fetchPrices(products, stores) {
+  const query = new URLSearchParams();
+  query.append("products", products.join(","));
+  query.append("stores", stores.join(","));
+  
+  try {
+    const response = await fetch(`/api/scrape?${query.toString()}`);
+    if (!response.ok) throw new Error("Erro na requisição");
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+    return null;
   }
 }
 
-function setupSelectAllButtons() {
-  // MOBILE
-  document.getElementById("select-all-products-mobile")?.addEventListener("click", () => {
-    toggleSelectAll("products-select-mobile", true);
-  });
-  document.getElementById("deselect-all-products-mobile")?.addEventListener("click", () => {
-    toggleSelectAll("products-select-mobile", false);
-  });
-
-  // DESKTOP
-  document.getElementById("select-all-products-desktop")?.addEventListener("click", () => {
-    toggleSelectAll("products-select-desktop", true);
-  });
-  document.getElementById("deselect-all-products-desktop")?.addEventListener("click", () => {
-    toggleSelectAll("products-select-desktop", false);
-  });
-}
-
-// -------- Busca --------
-function handleSearch() {
+// Função para tratar a busca
+async function handleSearch() {
   const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "<p>Carregando...</p>";
+
   const products = getSelectedProducts();
   const stores = getSelectedStores();
 
@@ -90,10 +61,24 @@ function handleSearch() {
     return;
   }
 
-  // Exibir resultados simulados
+  const prices = await fetchPrices(products, stores);
+  if (!prices) {
+    resultsDiv.innerHTML = "<p>⚠️ Erro ao buscar preços.</p>";
+    return;
+  }
+
   let html = "<h2>Resultados:</h2><ul>";
   for (const product of products) {
-    html += `<li><strong>${product}</strong>: Disponível para teste (mercados escolhidos: ${stores.join(", ")})</li>`;
+    html += `<li><strong>${product}</strong>: `;
+    const productPrices = prices[product];
+    if (!productPrices || Object.keys(productPrices).length === 0) {
+      html += "Não disponível em nenhum supermercado";
+    } else {
+      html += Object.entries(productPrices)
+        .map(([store, price]) => `${store}: ${price}`)
+        .join(" | ");
+    }
+    html += "</li>";
   }
   html += "</ul>";
   resultsDiv.innerHTML = html;
