@@ -1,6 +1,15 @@
 <!-- MOBILE: select múltiplo completo -->
 <div class="mobile-only">
   <label for="products-select">Produtos:</label>
+  <!-- Links para selecionar / desmarcar -->
+  <div class="select-actions">
+    <span id="select-all-products" style="color:blue; cursor:pointer; margin-right:10px;">
+      Selecionar todos
+    </span>
+    <span id="deselect-all-products" style="color:blue; cursor:pointer;">
+      Desmarcar todos
+    </span>
+  </div>
   <select id="products-select" multiple>
     <option value="CARNE MOÍDA">CARNE MOÍDA</option>
     <option value="PERNIL MOÍDO">PERNIL MOÍDO</option>
@@ -159,6 +168,15 @@
 <!-- DESKTOP: select múltiplo -->
 <div class="desktop-only">
   <label for="products-select-desktop">Produtos:</label>
+  <!-- Links para selecionar / desmarcar -->
+  <div class="select-actions">
+    <span id="select-all-products" style="color:blue; cursor:pointer; margin-right:10px;">
+      Selecionar todos
+    </span>
+    <span id="deselect-all-products" style="color:blue; cursor:pointer;">
+      Desmarcar todos
+    </span>
+  </div>
   <select id="products-select-desktop" multiple size="20">
     <option value="CARNE MOÍDA">CARNE MOÍDA</option>
     <option value="PERNIL MOÍDO">PERNIL MOÍDO</option>
@@ -316,10 +334,3 @@
     <option value="PATÊ/SACHE">PATÊ/SACHE</option>
   </select>
 
-  <div class="desktop-btns">
-    <button type="button" class="select-all-btn" data-target="products-select-desktop" data-action="select">Selecionar todos</button>
-    <button type="button" class="select-all-btn" data-target="products-select-desktop" data-action="deselect">Desmarcar todos</button>
-  </div>
-    </div>
-
-  
