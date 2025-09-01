@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(html => {
       document.getElementById("products-container").innerHTML = html;
-  });
+    });
   
   // carregar fragment dos supermercados dinamicamente
   fetch("fragments/stores_hortolandia.html")
@@ -23,18 +23,20 @@ document.addEventListener("DOMContentLoaded", () => {
 function getSelectedStores() {
   let stores = [];
 
-  // Caso mobile (select múltiplo)
-  const select = document.getElementById("stores-select");
-  if (select) {
-    for (let option of select.selectedOptions) {
+  // Mobile (select múltiplo)
+  const mobileSelect = document.getElementById("stores-select");
+  if (mobileSelect) {
+    for (let option of mobileSelect.selectedOptions) {
       stores.push(option.value.trim());
     }
   }
 
-  // Caso desktop (checkboxes)
-  const checkboxes = document.querySelectorAll("#stores-desktop input[type='checkbox']:checked");
-  if (checkboxes.length > 0) {
-    checkboxes.forEach(cb => stores.push(cb.value.trim()));
+  // Desktop (select múltiplo)
+  const desktopSelect = document.getElementById("stores-select-desktop");
+  if (desktopSelect) {
+    for (let option of desktopSelect.selectedOptions) {
+      stores.push(option.value.trim());
+    }
   }
 
   return stores;
@@ -65,17 +67,15 @@ function getSelectedProducts() {
 
 // Função para tratar a busca
 function handleSearch() {
-  const productsInput = document.getElementById("products-input").value.trim();
   const resultsDiv = document.getElementById("results");
 
-  // Validação
-  if (!productsInput) {
-    resultsDiv.innerHTML = "<p>⚠️ Digite pelo menos um produto.</p>";
+  const products = getSelectedProducts(); // agora pega do select
+  const stores = getSelectedStores();
+
+  if (products.length === 0) {
+    resultsDiv.innerHTML = "<p>⚠️ Selecione pelo menos um produto.</p>";
     return;
   }
-
-  const products = productsInput.split(",").map(p => p.trim()).filter(p => p);
-  const stores = getSelectedStores();
 
   if (stores.length === 0) {
     resultsDiv.innerHTML = "<p>⚠️ Selecione pelo menos um supermercado.</p>";
