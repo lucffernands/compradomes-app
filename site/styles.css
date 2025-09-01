@@ -65,6 +65,14 @@ select {
   border-radius: 8px;
   font-size: 1rem;
   box-sizing: border-box;
+  background: #fff;
+  color: #333;
+}
+
+/* Select múltiplo */
+select[multiple] {
+  height: 150px;
+  overflow-y: auto;
 }
 
 /* Botão */
@@ -109,11 +117,13 @@ button:hover {
 .mobile-only {
   display: block;
 }
+
+/* Desktop: inicialmente oculta */
 .desktop-only {
   display: none;
 }
 
-/* Desktop: mostra apenas select */
+/* Desktop: mostra apenas select/checkboxes */
 @media (min-width: 768px) {
   .mobile-only {
     display: none;
@@ -121,3 +131,21 @@ button:hover {
   .desktop-only {
     display: block;
   }
+
+  /* Desktop select múltiplo */
+  .desktop-only select {
+    height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Estilo hover para opções do desktop */
+  .desktop-only select option:hover {
+    background: #e0f7e9;
+  }
+                          }
