@@ -65,13 +65,19 @@ select {
   border-radius: 8px;
   font-size: 1rem;
   box-sizing: border-box;
-  background: #fff;
-  color: #333;
 }
 
-/* Select múltiplo */
+/* Ajuste de altura dos selects */
+select:not([multiple]) {
+  height: 42px; /* mesma altura do botão */
+  padding: 0 0.7rem;
+  line-height: 42px;
+}
+
 select[multiple] {
-  height: 150px;
+  min-height: 42px;   /* altura mínima igual ao botão */
+  max-height: 150px;  /* limite de altura da lista */
+  padding: 0.4rem;
   overflow-y: auto;
 }
 
@@ -117,13 +123,11 @@ button:hover {
 .mobile-only {
   display: block;
 }
-
-/* Desktop: inicialmente oculta */
 .desktop-only {
   display: none;
 }
 
-/* Desktop: mostra apenas select/checkboxes */
+/* Desktop: mostra apenas select/checkbox */
 @media (min-width: 768px) {
   .mobile-only {
     display: none;
@@ -132,20 +136,27 @@ button:hover {
     display: block;
   }
 
-  /* Desktop select múltiplo */
-  .desktop-only select {
-    height: 150px;
-    overflow-y: auto;
-    width: 100%;
-    padding: 0.7rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+  /* estilo para deixar os checkboxes mais bonitos */
+  #stores-desktop label,
+  #products-desktop label {
+    display: inline-block;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
   }
 
-  /* Estilo hover para opções do desktop */
-  .desktop-only select option:hover {
-    background: #e0f7e9;
+  #stores-desktop label:hover,
+  #products-desktop label:hover {
+    background: #ffe7a0;
+    border-color: #f1c40f;
   }
-                          }
+
+  #stores-desktop input[type="checkbox"],
+  #products-desktop input[type="checkbox"] {
+    margin-right: 6px;
+  }
+}
