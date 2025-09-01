@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+  // carregar fragment dos produtos
+  fetch("fragments/products_hortolandia.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("products-container").innerHTML = html;
+  });
+  
   // carregar fragment dos supermercados dinamicamente
   fetch("fragments/stores_hortolandia.html")
     .then(response => response.text())
