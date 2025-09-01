@@ -174,3 +174,16 @@ button:hover {
   }
 }
 
+/* Container dos checkboxes no desktop */
+#products-desktop .product-options {
+  max-height: 200px; /* altura máxima igual a do select */
+  overflow-y: auto;   /* adiciona barra de rolagem se necessário */
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
