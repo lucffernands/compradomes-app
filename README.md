@@ -48,7 +48,7 @@ node scrape.cjs
 
 
 
-##🎨 Funcionalidades
+## 🎨 Funcionalidades
 
 Seleção de produtos via select múltiplo (desktop e mobile).
 
@@ -59,7 +59,7 @@ Botões "Selecionar todos" / "Desmarcar todos" nos produtos.
 Exibição de resultados simulados ou reais.
 
 
-##🔧 Observações
+## 🔧 Observações
 
 Fragmentos HTML carregados dinamicamente (fragments/).
 
