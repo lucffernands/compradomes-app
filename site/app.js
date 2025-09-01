@@ -40,6 +40,29 @@ function getSelectedStores() {
   return stores;
 }
 
+// Função para coletar os produtos selecionados
+function getSelectedProducts() {
+  let products = [];
+
+  // Mobile
+  const mobileSelect = document.getElementById("products-select-mobile");
+  if (mobileSelect) {
+    for (let option of mobileSelect.selectedOptions) {
+      products.push(option.value.trim());
+    }
+  }
+
+  // Desktop
+  const desktopSelect = document.getElementById("products-select-desktop");
+  if (desktopSelect) {
+    for (let option of desktopSelect.selectedOptions) {
+      products.push(option.value.trim());
+    }
+  }
+
+  return products;
+}
+
 // Função para tratar a busca
 function handleSearch() {
   const productsInput = document.getElementById("products-input").value.trim();
