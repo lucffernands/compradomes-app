@@ -69,7 +69,7 @@ select {
 
 /* Select múltiplo (desktop) */
 #stores-select {
-  height: 150px;      /* espaço suficiente p/ várias opções */
+  padding: 0.7rem;
   overflow-y: auto;   /* rolagem se tiver muitos mercados */
 }
 
