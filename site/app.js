@@ -5,16 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
   searchBtn.addEventListener("click", handleSearch);
 
   setupSelectAllProducts();
+
+  fetch("fragments/products_hortolandia.html")
+    .then(res => res.text())
+    .then(html => document.getElementById("products-container").innerHTML = html);
+
+  fetch("fragments/stores_hortolandia.html")
+    .then(res => res.text())
+    .then(html => document.getElementById("stores-container").innerHTML = html);
 });
 
-// Coletar itens selecionados de um <select multiple>
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return [];
   return Array.from(select.selectedOptions).map(option => option.value.trim());
 }
 
-// Produtos selecionados
 function getSelectedProducts() {
   let products = [];
   products.push(...getSelectedFromSelect("products-select-mobile"));
@@ -22,15 +28,13 @@ function getSelectedProducts() {
   return products;
 }
 
-// Supermercados selecionados
 function getSelectedStores() {
   let stores = [];
-  stores.push(...getSelectedFromSelect("stores-select")); 
-  stores.push(...getSelectedFromSelect("stores-select-desktop")); 
+  stores.push(...getSelectedFromSelect("stores-select"));
+  stores.push(...getSelectedFromSelect("stores-select-desktop"));
   return stores;
 }
 
-// Buscar preços reais
 async function fetchPrices(products, stores) {
   const query = new URLSearchParams();
   query.append("products", products.join(","));
@@ -46,7 +50,6 @@ async function fetchPrices(products, stores) {
   }
 }
 
-// Selecionar / desmarcar todos produtos
 function toggleSelectAllProducts(toggle) {
   const selects = ["products-select-mobile", "products-select-desktop"];
   selects.forEach(id => {
@@ -59,20 +62,14 @@ function toggleSelectAllProducts(toggle) {
   });
 }
 
-// Configura os links “Selecionar todos / Desmarcar todos” para produtos
 function setupSelectAllProducts() {
   const selectAll = document.getElementById("select-all-products");
   const deselectAll = document.getElementById("deselect-all-products");
 
-  if (selectAll) {
-    selectAll.addEventListener("click", () => toggleSelectAllProducts(true));
-  }
-  if (deselectAll) {
-    deselectAll.addEventListener("click", () => toggleSelectAllProducts(false));
-  }
+  if (selectAll) selectAll.addEventListener("click", () => toggleSelectAllProducts(true));
+  if (deselectAll) deselectAll.addEventListener("click", () => toggleSelectAllProducts(false));
 }
 
-// Tratamento da busca
 async function handleSearch() {
   const resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "<p>Carregando...</p>";
@@ -110,4 +107,4 @@ async function handleSearch() {
   }
   html += "</ul>";
   resultsDiv.innerHTML = html;
-}
+                                       }
