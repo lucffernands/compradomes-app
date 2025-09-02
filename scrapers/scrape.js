@@ -3,16 +3,15 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { getPrices } from "./utils.js";
 
+const app = express();
+const PORT = process.env.PORT || 3001;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-// Servir arquivos estáticos da pasta site
+// Servir a pasta site como arquivos estáticos
 app.use(express.static(path.join(__dirname, "../site")));
 
-// Rota API de scraping
+// Rota da API para buscar preços
 app.get("/api/scrape", async (req, res) => {
   const { products, stores } = req.query;
 
@@ -22,18 +21,13 @@ app.get("/api/scrape", async (req, res) => {
 
   const productList = products.split(",").map(p => p.trim());
   const storeList = stores.split(",").map(s => s.trim());
-
   const results = {};
+
   for (const product of productList) {
     results[product] = await getPrices(product, storeList);
   }
 
   res.json(results);
-});
-
-// Rota principal para abrir index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../site/index.html"));
 });
 
 app.listen(PORT, () => {
