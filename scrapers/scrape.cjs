@@ -1,44 +1,38 @@
-import fs from "fs";
-import path from "path";
+import { getPrices } from "./utils.js";
 
-const dataPath = path.resolve("./data");
-const pricesFile = path.join(dataPath, "prices.json");
-const skuFile = path.join(dataPath, "sku_map.csv");
-const storesFile = path.join(dataPath, "stores.json");
-
-function loadData(file) {
-  return JSON.parse(fs.readFileSync(file, "utf-8"));
-}
-
-function getPrice(product, store, prices) {
-  if (prices[store] && prices[store][product]) {
-    return prices[store][product];
-  }
-  return "Não disponível";
-}
-
-function main(products, stores) {
-  const prices = loadData(pricesFile);
-  const storeList = loadData(storesFile);
-
-  const results = {};
-  for (const product of products) {
-    results[product] = {};
-    for (const store of stores) {
-      if (storeList.includes(store)) {
-        results[product][store] = getPrice(product, store, prices);
-      }
-    }
-  }
-  fs.writeFileSync(path.join(dataPath, "results.json"), JSON.stringify(results, null, 2));
-  console.log("Scrape finalizado. Arquivo results.json atualizado.");
-}
-
+// capturar argumentos da linha de comando
 const args = process.argv.slice(2);
-const productsArg = args.find(a => a.startsWith("--products="));
-const storesArg = args.find(a => a.startsWith("--stores="));
+let productsArg = "";
+let storesArg = "";
 
-const products = productsArg ? productsArg.replace("--products=", "").split(",") : [];
-const stores = storesArg ? storesArg.replace("--stores=", "").split(",") : [];
+args.forEach(arg => {
+  if (arg.startsWith("--products=")) {
+    productsArg = arg.replace("--products=", "");
+  }
+  if (arg.startsWith("--stores=")) {
+    storesArg = arg.replace("--stores=", "");
+  }
+});
 
-main(products, stores);
+if (!productsArg || !storesArg) {
+  console.error("Erro: --products e --stores são obrigatórios");
+  process.exit(1);
+}
+
+// transformar em array
+const products = productsArg.split(",").map(p => p.trim());
+const stores = storesArg.split(",").map(s => s.trim());
+
+// função principal do scraper (da utils.js)
+(async () => {
+  try {
+    const result = {};
+    for (const product of products) {
+      result[product] = await getPrices(product, stores);
+    }
+    console.log(JSON.stringify(result));
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+})();
