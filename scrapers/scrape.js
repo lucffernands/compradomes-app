@@ -4,19 +4,27 @@ import { chromium, devices } from "playwright";
 const MOBILE_USER_AGENT = devices['iPhone 13'];
 
 async function scrapeGoodBom(productQuery) {
-  // Lança o browser
-  const browser = await chromium.launch({ headless: true });
-  
-  // Abre página mobile e desktop em paralelo
+  // Lança o browser com flags para Render
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu"
+    ]
+  });
+
+  // Contextos mobile e desktop
   const contexts = [
-    await browser.newContext({ ...MOBILE_USER_AGENT }), // Mobile
-    await browser.newContext() // Desktop
+    { ctx: await browser.newContext({ ...MOBILE_USER_AGENT }), type: "mobile" },
+    { ctx: await browser.newContext(), type: "desktop" }
   ];
 
   const results = [];
 
-  for (const context of contexts) {
-    const page = await context.newPage();
+  for (const { ctx, type } of contexts) {
+    const page = await ctx.newPage();
     const url = `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(productQuery)}`;
     await page.goto(url, { waitUntil: 'networkidle' });
 
@@ -26,11 +34,11 @@ async function scrapeGoodBom(productQuery) {
     );
 
     results.push({
-      type: context._options.userAgent || 'desktop',
+      type,
       products: products.length > 0 ? products : ['❌ Não disponível']
     });
 
-    await context.close();
+    await ctx.close();
   }
 
   await browser.close();
