@@ -1,13 +1,12 @@
 {
-  "goodbom": {
-    "name": "GoodBom Hortolândia",
+  "GoodBom": {
     "baseUrl": "https://www.goodbom.com.br/hortolandia",
-    "searchUrl": "https://www.goodbom.com.br/hortolandia/busca?ft={query}",
     "selectors": {
-      "product": "a.sc-413778f5-0.ktiOQb",
-      "name": "span.product-name",
+      "input": "input[placeholder='Busque pelo produto']",
+      "card": "a.sc-413778f5-0.ktiOQb",
+      "title": "span.product-name",
       "price": "span.price",
-      "image": "img"
+      "link": "a.sc-413778f5-0.ktiOQb"
     }
   },
   "Savegnago": {
