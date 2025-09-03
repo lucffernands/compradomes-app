@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { spawn } from "child_process";
+import { getPrices } from "./scrapers/utils.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,43 +13,24 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "site")));
 
 // rota da API para scraping
-app.get("/api/scrape", (req, res) => {
+app.get("/api/scrape", async (req, res) => {
   const { products, stores } = req.query;
 
   if (!products || !stores) {
-    return res.status(400).json({ error: "Parâmetros 'products' e 'stores' são obrigatórios" });
+    return res
+      .status(400)
+      .json({ error: "Parâmetros 'products' e 'stores' são obrigatórios" });
   }
 
-  // chama o scrapers/scrape.cjs com Node (separado)
-  const scraper = spawn("node", [
-    "scrapers/scrape.cjs",
-    `--products=${products}`,
-    `--stores=${stores}`
-  ]);
+  const productList = products.split(",").map((p) => p.trim());
+  const storeList = stores.split(",").map((s) => s.trim());
+  const results = {};
 
-  let output = "";
-  let error = "";
+  for (const product of productList) {
+    results[product] = await getPrices(product, storeList);
+  }
 
-  scraper.stdout.on("data", (data) => {
-    output += data.toString();
-  });
-
-  scraper.stderr.on("data", (data) => {
-    error += data.toString();
-  });
-
-  scraper.on("close", (code) => {
-    if (code !== 0) {
-      return res.status(500).json({ error: error || "Erro no scraper" });
-    }
-
-    try {
-      const json = JSON.parse(output);
-      res.json(json);
-    } catch (err) {
-      res.status(500).json({ error: "Erro ao processar saída do scraper" });
-    }
-  });
+  res.json(results);
 });
 
 // inicia servidor
