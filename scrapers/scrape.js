@@ -1,55 +1,52 @@
-console.log("✅ Scraper iniciado");
+// scrapers/scrape.js
+import { chromium, devices } from "playwright";
 
-import fetch from "node-fetch";
-import { JSDOM } from "jsdom";
+const MOBILE_USER_AGENT = devices['iPhone 13'];
 
-console.log("✅ Dependências carregadas");
+async function scrapeGoodBom(productQuery) {
+  // Lança o browser
+  const browser = await chromium.launch({ headless: true });
+  
+  // Abre página mobile e desktop em paralelo
+  const contexts = [
+    await browser.newContext({ ...MOBILE_USER_AGENT }), // Mobile
+    await browser.newContext() // Desktop
+  ];
 
-// seu código de scraping aqui
+  const results = [];
 
-function parsePrice(priceStr) {
-  if (!priceStr) return null;
-  return parseFloat(priceStr.replace("R$", "").replace(",", ".").trim());
-}
+  for (const context of contexts) {
+    const page = await context.newPage();
+    const url = `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(productQuery)}`;
+    await page.goto(url, { waitUntil: 'networkidle' });
 
-export async function scrapeGoodBom(products = []) {
-  const results = {};
+    // Extrai produtos visíveis
+    const products = await page.$$eval('.product-name', nodes =>
+      nodes.map(n => n.textContent.trim())
+    );
 
-  for (const product of products) {
-    const query = encodeURIComponent(product);
-    const url = `https://www.goodbom.com.br/hortolandia/busca?q=${query}`;
+    results.push({
+      type: context._options.userAgent || 'desktop',
+      products: products.length > 0 ? products : ['❌ Não disponível']
+    });
 
-    try {
-      const res = await fetch(url);
-      const text = await res.text();
-      const dom = new JSDOM(text);
-      const document = dom.window.document;
-
-      const productElements = document.querySelectorAll("a.sc-413778f5-0.ktiOQb");
-      if (!productElements.length) {
-        results[product] = "❌ Não disponível em GoodBom";
-        continue;
-      }
-
-      const productList = [];
-      productElements.forEach((el) => {
-        const nameEl = el.querySelector("span.product-name");
-        const priceEl = el.querySelector("span.price");
-
-        if (nameEl && priceEl) {
-          const name = nameEl.textContent.trim();
-          const priceText = priceEl.textContent.trim();
-          const price = parsePrice(priceText);
-
-          productList.push({ name, price, raw: priceText });
-        }
-      });
-
-      results[product] = productList.length ? productList : "❌ Não disponível em GoodBom";
-    } catch (err) {
-      results[product] = `❌ Erro ao buscar: ${err.message}`;
-    }
+    await context.close();
   }
 
+  await browser.close();
   return results;
 }
+
+// Teste rápido
+(async () => {
+  try {
+    console.log("✅ Scraper iniciado");
+    const product = process.argv.find(arg => arg.startsWith('--product='))?.split('=')[1] || 'Bacon';
+    const data = await scrapeGoodBom(product);
+    console.log(JSON.stringify(data, null, 2));
+    process.exit(0);
+  } catch (err) {
+    console.error("❌ Erro no scraper:", err);
+    process.exit(1);
+  }
+})();
