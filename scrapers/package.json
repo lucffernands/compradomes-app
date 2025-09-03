@@ -6,6 +6,9 @@
     "playwright": "^1.47.0",
     "csv-parse": "^5.5.6",
     "node-fetch": "^3",
-    "jsdom": "^22.1.0"
+    "jsdom": "^22"
+  },
+  "scripts": {
+    "start": "node scrape.js"
   }
 }
