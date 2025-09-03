@@ -19,6 +19,7 @@ O usuário pode selecionar produtos e supermercados, e o sistema retorna preços
 ├─ 📁 scrapers/
 │  ├─ 📄 scrape.js
 │  ├─ 📄 package.json
+│  ├─ 📄 package-lock.json
 │  └─ 📄 utils.js
 ├─📁 site/ 
 │  ├─ 📄 styles.css
