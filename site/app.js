@@ -1,4 +1,4 @@
-const API_BASE = "https://seu-app-render.onrender.com";
+const API_BASE = "https://compradomes-app.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
