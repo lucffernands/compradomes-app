@@ -1,17 +1,62 @@
 {
-  "carrefour": {
-    "baseUrl": "https://mercado.carrefour.com.br/busca?q=",
+  "GoodBom": {
+    "baseUrl": "https://www.goodbom.com.br/busca?q=",
     "selectors": {
       "card": ".product-card",
-      "title": ".product-card__title",
-      "price": ".product-card__price",
+      "title": ".product-title",
+      "price": ".price",
       "link": "a"
     }
   },
-  "pao de acucar": {
-    "baseUrl": "https://www.paodeacucar.com/busca?q=",
+  "Savegnago": {
+    "baseUrl": "https://www.savegnago.com.br/busca?q=",
     "selectors": {
-      "card": "[data-testid='product-card']",
+      "card": ".product-card",
+      "title": ".product-title",
+      "price": ".price",
+      "link": "a"
+    }
+  },
+  "Assaí": {
+    "baseUrl": "https://www.assai.com.br/busca?q=",
+    "selectors": {
+      "card": ".product-card",
+      "title": ".product-title",
+      "price": ".price",
+      "link": "a"
+    }
+  },
+  "São Vicente": {
+    "baseUrl": "https://www.saovicente.com.br/busca?q=",
+    "selectors": {
+      "card": ".product-card",
+      "title": ".product-title",
+      "price": ".price",
+      "link": "a"
+    }
+  },
+  "Arena Atacado": {
+    "baseUrl": "https://www.arenaatacado.com.br/busca?q=",
+    "selectors": {
+      "card": ".product-card",
+      "title": ".product-title",
+      "price": ".price",
+      "link": "a"
+    }
+  },
+  "Enxuto Supermercados": {
+    "baseUrl": "https://www.enxuto.com.br/busca?q=",
+    "selectors": {
+      "card": ".product-card",
+      "title": ".product-title",
+      "price": ".price",
+      "link": "a"
+    }
+  },
+  "Tenda Atacado": {
+    "baseUrl": "https://www.tenda.com.br/busca?q=",
+    "selectors": {
+      "card": ".product-card",
       "title": ".product-title",
       "price": ".price",
       "link": "a"
