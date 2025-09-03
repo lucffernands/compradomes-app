@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: compradomes-app
+    env: node
+    plan: free
+    buildCommand: cd scrapers && npm install
+    startCommand: cd scrapers && npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
