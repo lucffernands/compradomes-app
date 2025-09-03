@@ -1,12 +1,14 @@
-// scrapers/scrape.js
 import { chromium, devices } from "playwright";
 
 const MOBILE_USER_AGENT = devices['iPhone 13'];
 
 async function scrapeGoodBom(productQuery) {
-  const browser = await chromium.launch({ headless: true });
+  // Usa o Chrome nativo do Render
+  const browser = await chromium.launch({
+    channel: "chrome", // <== usa o Chrome do sistema
+    headless: true
+  });
 
-  // Mobile e Desktop em paralelo
   const contexts = [
     await browser.newContext({ ...MOBILE_USER_AGENT }), // Mobile
     await browser.newContext() // Desktop
