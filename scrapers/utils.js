@@ -28,7 +28,9 @@ async function scrapeFromStore(storeConfig, product) {
   const url = `${storeConfig.baseUrl}${encodeURIComponent(product)}`;
 
   await page.goto(url, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(2000); // espera simples
+
+  // espera 2s para garantir que renderizou
+  await page.waitForTimeout(2000);
 
   const cards = await page.$$(storeConfig.selectors.card);
 
@@ -39,13 +41,19 @@ async function scrapeFromStore(storeConfig, product) {
 
   const firstCard = cards[0];
 
-  const title = await firstCard.$eval(storeConfig.selectors.title, el => el.textContent.trim()).catch(() => null);
-  const price = await firstCard.$eval(storeConfig.selectors.price, el => el.textContent.trim()).catch(() => null);
-  const link = await firstCard.$eval(storeConfig.selectors.link, el => el.href).catch(() => url);
+  const title = await firstCard
+    .$eval(storeConfig.selectors.title, (el) => el.textContent.trim())
+    .catch(() => null);
+  const price = await firstCard
+    .$eval(storeConfig.selectors.price, (el) => el.textContent.trim())
+    .catch(() => null);
+  const link = await firstCard
+    .$eval(storeConfig.selectors.link, (el) => el.href)
+    .catch(() => url);
 
   await browser.close();
 
-  return price ? `${title} - R$ ${parsePriceBR(price).toFixed(2)}` : null;
+  return price ? `R$ ${parsePriceBR(price).toFixed(2)}` : null;
 }
 
 // função principal que o servidor chama
