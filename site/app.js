@@ -4,12 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
   searchBtn.addEventListener("click", handleSearch);
 
-  // carregar produtos e só depois configurar os botões
+  // carregar produtos
   fetch("fragments/products_hortolandia.html")
     .then(res => res.text())
     .then(html => {
       document.getElementById("products-container").innerHTML = html;
-      setupSelectAllProducts(); // só roda depois do HTML injetado
+      setupSelectAllProducts();
     });
 
   // carregar supermercados
@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // --- Funções auxiliares ---
-
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
   if (!select) return [];
@@ -29,24 +28,25 @@ function getSelectedFromSelect(selectId) {
 }
 
 function getSelectedProducts() {
-  let products = [];
-  products.push(...getSelectedFromSelect("products-select-mobile"));
-  products.push(...getSelectedFromSelect("products-select-desktop"));
-  return products;
+  return [
+    ...getSelectedFromSelect("products-select-mobile"),
+    ...getSelectedFromSelect("products-select-desktop")
+  ];
 }
 
 function getSelectedStores() {
-  let stores = [];
-  stores.push(...getSelectedFromSelect("stores-select"));
-  stores.push(...getSelectedFromSelect("stores-select-desktop"));
-  return stores;
+  return [
+    ...getSelectedFromSelect("stores-select"),
+    ...getSelectedFromSelect("stores-select-desktop")
+  ];
 }
 
+// --- Fetch preços ---
 async function fetchPrices(products, stores) {
   const query = new URLSearchParams();
   query.append("products", products.join(","));
   query.append("stores", stores.join(","));
-  
+
   try {
     const response = await fetch(`${API_BASE}/api/scrape?${query.toString()}`);
     if (!response.ok) throw new Error("Erro na requisição");
@@ -57,7 +57,7 @@ async function fetchPrices(products, stores) {
   }
 }
 
-// configurar os botões "Selecionar todos / Desmarcar todos"
+// --- Botões selecionar todos/desmarcar todos ---
 function setupSelectAllProducts() {
   const buttons = [
     { selectAll: "select-all-products-mobile", deselectAll: "deselect-all-products-mobile", target: "products-select-mobile" },
@@ -83,7 +83,7 @@ function setupSelectAllProducts() {
   });
 }
 
-// buscar preços
+// --- Buscar preços ---
 async function handleSearch() {
   const resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "<p>Carregando...</p>";
@@ -121,4 +121,4 @@ async function handleSearch() {
   }
   html += "</ul>";
   resultsDiv.innerHTML = html;
-}
+    }
