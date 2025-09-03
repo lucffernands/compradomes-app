@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { chromium } from "playwright";
 
-// converte preço brasileiro (ex: "R$ 10,99") em número
+// --- Função para converter preço BR em número ---
 export function parsePriceBR(txt) {
   if (!txt) return null;
   const digits = txt.replace(/[^0-9,]/g, "").replace(",", ".");
@@ -10,10 +10,10 @@ export function parsePriceBR(txt) {
   return Number.isFinite(n) ? n : null;
 }
 
-// caminho para o JSON com configurações de lojas
+// --- Caminho para o JSON com lojas ---
 const storesPath = path.resolve("./data/stores.json");
 
-// carrega lojas suportadas
+// --- Carrega lojas suportadas ---
 function loadStores() {
   if (fs.existsSync(storesPath)) {
     return JSON.parse(fs.readFileSync(storesPath, "utf-8"));
@@ -21,64 +21,67 @@ function loadStores() {
   return {};
 }
 
-// função que faz scraping de um produto em uma loja
+// --- Normaliza nomes de loja (remove acentos, minúsculas) ---
+function normalizeStoreName(name) {
+  return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// --- Função que faz scraping de um produto em uma loja ---
 async function scrapeFromStore(storeConfig, product) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   const url = `${storeConfig.baseUrl}${encodeURIComponent(product)}`;
 
-  try {
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
 
-    // espera o primeiro card aparecer ou timeout
-    await page.waitForSelector(storeConfig.selectors.card, { timeout: 5000 }).catch(() => null);
+  // espera simples de 2s para garantir que a página carregou
+  await page.waitForTimeout(2000);
 
-    const cards = await page.$$(storeConfig.selectors.card);
+  const cards = await page.$$(storeConfig.selectors.card);
 
-    if (cards.length === 0) {
-      return null; // produto não encontrado
-    }
-
-    const firstCard = cards[0];
-
-    const title = await firstCard.$eval(storeConfig.selectors.title, el => el.textContent.trim()).catch(() => null);
-    const price = await firstCard.$eval(storeConfig.selectors.price, el => el.textContent.trim()).catch(() => null);
-    const link = await firstCard.$eval(storeConfig.selectors.link, el => el.href).catch(() => url);
-
-    return price ? `R$ ${parsePriceBR(price).toFixed(2)}` : null;
-  } finally {
+  if (cards.length === 0) {
     await browser.close();
+    return null; // produto não encontrado
   }
+
+  const firstCard = cards[0];
+
+  const title = await firstCard.$eval(storeConfig.selectors.title, el => el.textContent.trim()).catch(() => null);
+  const price = await firstCard.$eval(storeConfig.selectors.price, el => el.textContent.trim()).catch(() => null);
+  const link = await firstCard.$eval(storeConfig.selectors.link, el => el.href).catch(() => url);
+
+  await browser.close();
+
+  return price ? `R$ ${parsePriceBR(price).toFixed(2)}` : null;
 }
 
-// função principal: busca preços de múltiplos produtos em múltiplas lojas
-export async function getPrices(products, stores) {
-  const availableStores = loadStores(); // JSON com as configs
+// --- Função principal chamada pelo servidor ---
+export async function getPrices(product, stores) {
+  const availableStores = loadStores();
+
+  // cria mapa normalizado -> config
+  const normalizedStores = {};
+  for (const key of Object.keys(availableStores)) {
+    normalizedStores[normalizeStoreName(key)] = availableStores[key];
+  }
+
   const result = {};
 
-  // percorre cada produto
-  await Promise.all(products.map(async (product) => {
-    const storeResults = {};
+  for (const store of stores) {
+    const storeConfig = normalizedStores[normalizeStoreName(store)];
+    if (!storeConfig) {
+      result[store] = "❌ Não suportado";
+      continue;
+    }
 
-    // busca em todas as lojas em paralelo
-    await Promise.all(stores.map(async (store) => {
-      const storeConfig = availableStores[store];
-      if (!storeConfig) {
-        storeResults[store] = "❌ Não suportado";
-        return;
-      }
-
-      try {
-        const price = await scrapeFromStore(storeConfig, product);
-        storeResults[store] = price || "⚠️ Produto não encontrado";
-      } catch (err) {
-        console.error(`Erro ao buscar ${product} em ${store}:`, err);
-        storeResults[store] = "⚠️ Erro";
-      }
-    }));
-
-    result[product] = storeResults;
-  }));
+    try {
+      const price = await scrapeFromStore(storeConfig, product);
+      result[store] = price || "⚠️ Produto não encontrado";
+    } catch (err) {
+      console.error(`Erro ao buscar ${product} em ${store}:`, err);
+      result[store] = "⚠️ Erro";
+    }
+  }
 
   return result;
 }
