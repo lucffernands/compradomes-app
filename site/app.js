@@ -57,26 +57,30 @@ async function fetchPrices(products, stores) {
   }
 }
 
-// selecionar / desmarcar todos produtos
-function toggleSelectAllProducts(toggle) {
-  const selects = ["products-select-mobile", "products-select-desktop"];
-  selects.forEach(id => {
-    const select = document.getElementById(id);
-    if (select) {
-      for (let option of select.options) {
-        option.selected = toggle;
-      }
-    }
-  });
-}
-
 // configurar os botões "Selecionar todos / Desmarcar todos"
 function setupSelectAllProducts() {
-  const selectAll = document.getElementById("select-all-products");
-  const deselectAll = document.getElementById("deselect-all-products");
+  const buttons = [
+    { selectAll: "select-all-products-mobile", deselectAll: "deselect-all-products-mobile", target: "products-select-mobile" },
+    { selectAll: "select-all-products-desktop", deselectAll: "deselect-all-products-desktop", target: "products-select-desktop" },
+  ];
 
-  if (selectAll) selectAll.addEventListener("click", () => toggleSelectAllProducts(true));
-  if (deselectAll) deselectAll.addEventListener("click", () => toggleSelectAllProducts(false));
+  buttons.forEach(({ selectAll, deselectAll, target }) => {
+    const allBtn = document.getElementById(selectAll);
+    const noneBtn = document.getElementById(deselectAll);
+    const selectEl = document.getElementById(target);
+
+    if (allBtn && selectEl) {
+      allBtn.addEventListener("click", () => {
+        for (let option of selectEl.options) option.selected = true;
+      });
+    }
+
+    if (noneBtn && selectEl) {
+      noneBtn.addEventListener("click", () => {
+        for (let option of selectEl.options) option.selected = false;
+      });
+    }
+  });
 }
 
 // buscar preços
