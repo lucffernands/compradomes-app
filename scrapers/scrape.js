@@ -48,9 +48,3 @@ export async function scrapeGoodBom(products = []) {
 
   return results;
 }
-
-// teste rápido via node
-if (process.argv.length > 2) {
-  const products = process.argv[2].split(",");
-  scrapeGoodBom(products).then((res) => console.log(JSON.stringify(res, null, 2)));
-}
