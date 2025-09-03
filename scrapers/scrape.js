@@ -12,7 +12,6 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../site")));
 
 // Rota da API para buscar preços
-// Exemplo de query: /api/scrape?products=CARNE MOÍDA,PICANHA&stores=GoodBom,Savegnago
 app.get("/api/scrape", async (req, res) => {
   const { products, stores } = req.query;
 
@@ -20,17 +19,15 @@ app.get("/api/scrape", async (req, res) => {
     return res.status(400).json({ error: "Parâmetros obrigatórios: products e stores" });
   }
 
-  // transforma as listas em arrays limpos
-  const productList = products.split(",").map(p => p.trim()).filter(Boolean);
-  const storeList = stores.split(",").map(s => s.trim()).filter(Boolean);
+  const productList = products.split(",").map(p => p.trim());
+  const storeList = stores.split(",").map(s => s.trim());
+  const results = {};
 
-  try {
-    const results = await getPrices(productList, storeList);
-    res.json(results);
-  } catch (err) {
-    console.error("Erro ao buscar preços:", err);
-    res.status(500).json({ error: "Erro interno ao buscar preços" });
+  for (const product of productList) {
+    results[product] = await getPrices(product, storeList);
   }
+
+  res.json(results);
 });
 
 app.listen(PORT, () => {
