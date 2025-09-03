@@ -8,6 +8,6 @@
   },
   "scripts": {
     "start": "node scrape.js",
-    "postinstall": "npx playwright install"
+    "postinstall": "npx playwright install --with-deps chromium"
   }
 }
