@@ -24,12 +24,21 @@ app.get("/api/scrape", async (req, res) => {
   const results = {};
 
   for (const product of productList) {
-    results[product] = await getPrices(product, storeList);
+    try {
+      results[product] = await getPrices(product, storeList);
+    } catch (err) {
+      console.error(`Erro ao buscar preços do produto "${product}":`, err);
+      results[product] = storeList.reduce((acc, store) => {
+        acc[store] = "⚠️ Erro";
+        return acc;
+      }, {});
+    }
   }
 
   res.json(results);
 });
 
+// Inicializa o servidor
 app.listen(PORT, () => {
   console.log(`✅ Scraper rodando em http://localhost:${PORT}`);
 });
