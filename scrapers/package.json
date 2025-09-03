@@ -7,7 +7,7 @@
     "csv-parse": "^5.5.6"
   },
   "scripts": {
-    "start": "node scrape.js",
-    "postinstall": "npx playwright install --with-deps chromium"
+    "postinstall": "npx playwright install --with-deps",
+    "start": "node scrape.js"
   }
 }
