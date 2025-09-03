@@ -20,10 +20,13 @@ O usuário pode selecionar produtos e supermercados, e o sistema retorna preços
 │  ├─ 📄 scrape.js
 │  ├─ 📄 package.json
 │  └─ 📄 utils.js
-📁 site/ 
-├─ 📄 styles.css
-├─ 📄 app.js
-└─ 📄 index.html
+├─📁 site/ 
+│  ├─ 📄 styles.css
+│  ├─ 📄 app.js
+│  └─ 📄 index.html
+├─📄 server.js
+├─📄 render.yml
+
 ```
 ## ⚡ Como usar
 
