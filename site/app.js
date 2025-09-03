@@ -4,16 +4,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
   searchBtn.addEventListener("click", handleSearch);
 
-  setupSelectAllProducts();
-
+  // carregar produtos e só depois configurar os botões
   fetch("fragments/products_hortolandia.html")
     .then(res => res.text())
-    .then(html => document.getElementById("products-container").innerHTML = html);
+    .then(html => {
+      document.getElementById("products-container").innerHTML = html;
+      setupSelectAllProducts(); // só roda depois do HTML injetado
+    });
 
+  // carregar supermercados
   fetch("fragments/stores_hortolandia.html")
     .then(res => res.text())
-    .then(html => document.getElementById("stores-container").innerHTML = html);
+    .then(html => {
+      document.getElementById("stores-container").innerHTML = html;
+    });
 });
+
+// --- Funções auxiliares ---
 
 function getSelectedFromSelect(selectId) {
   const select = document.getElementById(selectId);
@@ -50,6 +57,7 @@ async function fetchPrices(products, stores) {
   }
 }
 
+// selecionar / desmarcar todos produtos
 function toggleSelectAllProducts(toggle) {
   const selects = ["products-select-mobile", "products-select-desktop"];
   selects.forEach(id => {
@@ -62,6 +70,7 @@ function toggleSelectAllProducts(toggle) {
   });
 }
 
+// configurar os botões "Selecionar todos / Desmarcar todos"
 function setupSelectAllProducts() {
   const selectAll = document.getElementById("select-all-products");
   const deselectAll = document.getElementById("deselect-all-products");
@@ -70,6 +79,7 @@ function setupSelectAllProducts() {
   if (deselectAll) deselectAll.addEventListener("click", () => toggleSelectAllProducts(false));
 }
 
+// buscar preços
 async function handleSearch() {
   const resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "<p>Carregando...</p>";
@@ -107,4 +117,4 @@ async function handleSearch() {
   }
   html += "</ul>";
   resultsDiv.innerHTML = html;
-                                       }
+}
