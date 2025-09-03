@@ -1,35 +1,56 @@
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-import { getPrices } from "./utils.js";
+// scrapers/scrape.js
+import fetch from "node-fetch";
+import { JSDOM } from "jsdom";
 
-const app = express();
-const PORT = process.env.PORT || 3001;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function parsePrice(priceStr) {
+  if (!priceStr) return null;
+  return parseFloat(priceStr.replace("R$", "").replace(",", ".").trim());
+}
 
-// Servir a pasta site como arquivos estáticos
-app.use(express.static(path.join(__dirname, "../site")));
-
-// Rota da API para buscar preços
-app.get("/api/scrape", async (req, res) => {
-  const { products, stores } = req.query;
-
-  if (!products || !stores) {
-    return res.status(400).json({ error: "Parâmetros obrigatórios: products e stores" });
-  }
-
-  const productList = products.split(",").map(p => p.trim());
-  const storeList = stores.split(",").map(s => s.trim());
+export async function scrapeGoodBom(products = []) {
   const results = {};
 
-  for (const product of productList) {
-    results[product] = await getPrices(product, storeList);
+  for (const product of products) {
+    const query = encodeURIComponent(product);
+    const url = `https://www.goodbom.com.br/hortolandia/busca?q=${query}`;
+
+    try {
+      const res = await fetch(url);
+      const text = await res.text();
+      const dom = new JSDOM(text);
+      const document = dom.window.document;
+
+      const productElements = document.querySelectorAll("a.sc-413778f5-0.ktiOQb");
+      if (!productElements.length) {
+        results[product] = "❌ Não disponível em GoodBom";
+        continue;
+      }
+
+      const productList = [];
+      productElements.forEach((el) => {
+        const nameEl = el.querySelector("span.product-name");
+        const priceEl = el.querySelector("span.price");
+
+        if (nameEl && priceEl) {
+          const name = nameEl.textContent.trim();
+          const priceText = priceEl.textContent.trim();
+          const price = parsePrice(priceText);
+
+          productList.push({ name, price, raw: priceText });
+        }
+      });
+
+      results[product] = productList.length ? productList : "❌ Não disponível em GoodBom";
+    } catch (err) {
+      results[product] = `❌ Erro ao buscar: ${err.message}`;
+    }
   }
 
-  res.json(results);
-});
+  return results;
+}
 
-app.listen(PORT, () => {
-  console.log(`✅ Scraper rodando em http://localhost:${PORT}`);
-});
+// teste rápido via node
+if (process.argv.length > 2) {
+  const products = process.argv[2].split(",");
+  scrapeGoodBom(products).then((res) => console.log(JSON.stringify(res, null, 2)));
+}
