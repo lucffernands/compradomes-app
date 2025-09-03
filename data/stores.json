@@ -1,14 +1,13 @@
 {
   "GoodBom": {
-    "baseUrl": "https://www.goodbom.com.br/hortolandia",
+    "baseUrl": "https://www.goodbom.com.br/hortolandia/busca?q=",
     "selectors": {
-      "input": "input[placeholder='Busque pelo produto']",
       "card": "a.sc-413778f5-0.ktiOQb",
-      "title": "span.product-name",
-      "price": "span.price",
-      "link": "a.sc-413778f5-0.ktiOQb"
+      "title": ".product-name",
+      "price": ".price",
+      "link": "a"
     }
-  },
+},
   "Savegnago": {
     "baseUrl": "https://www.savegnago.com.br/busca?q=",
     "selectors": {
