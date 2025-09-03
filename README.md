@@ -17,7 +17,7 @@ O usuário pode selecionar produtos e supermercados, e o sistema retorna preços
 │  ├─ 📄 products_hortolandia.html
 │  └─ 📄 stores_hortolandia.html
 ├─ 📁 scrapers/
-│  ├─ 📄 scrape.cjs
+│  ├─ 📄 scrape.js
 │  ├─ 📄 package.json
 │  └─ 📄 utils.js
 📁 site/ 
