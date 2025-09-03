@@ -1,6 +1,11 @@
-// scrapers/scrape.js
+console.log("✅ Scraper iniciado");
+
 import fetch from "node-fetch";
 import { JSDOM } from "jsdom";
+
+console.log("✅ Dependências carregadas");
+
+// seu código de scraping aqui
 
 function parsePrice(priceStr) {
   if (!priceStr) return null;
