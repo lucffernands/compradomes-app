@@ -26,7 +26,7 @@ O usuário pode selecionar produtos e supermercados, e o sistema retorna preços
 │  └─ 📄 index.html
 ├─📄 server.js
 ├─📄 render.yml
-
+├─📄 README.md
 ```
 ## ⚡ Como usar
 
