@@ -1,9 +1,10 @@
-name: Scraper e Deploy Puppeteer
+# .github/workflows/scrape.yml
+name: Scraper e Deploy
 
 on:
   workflow_dispatch:   # Permite rodar manualmente
   schedule:
-    - cron: "0 */2 * * *"  # Executa a cada 2 horas
+    - cron: "0 */2 * * *"  # A cada 2 horas
 
 jobs:
   scrape:
@@ -18,24 +19,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: '18'
 
-      # 3️⃣ Instala dependências
+      # 3️⃣ Instala dependências (Puppeteer)
       - name: Instalar dependências
         working-directory: scrapers
-        run: |
-          npm install
-          # Puppeteer já vai baixar o Chromium necessário
+        run: npm install
 
-      # 4️⃣ Rodar scraper com Puppeteer
+      # 4️⃣ Rodar scraper Puppeteer
       - name: Rodar scraper Puppeteer
         working-directory: scrapers
-        run: node scrape.js --product=Bacon
+        run: node scrape.js
 
-      # 5️⃣ Commit e Deploy para GitHub Pages
+      # 5️⃣ Publicar site/ no branch gh-pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
           publish_dir: ./site
+          publish_branch: gh-pages
