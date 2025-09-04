@@ -3,14 +3,17 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
   loadStores();
+
+  document.getElementById('search-btn').addEventListener('click', () => {
+    comparePrices();
+  });
 });
 
-// Carrega fragment de produtos e mantém "Selecionar todos / Desmarcar todos"
+// ---- Carregar fragment de produtos ----
 async function loadProducts() {
   try {
     const res = await fetch('./fragments/products_hortolandia.html');
     const htmlText = await res.text();
-
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlText;
 
@@ -32,7 +35,7 @@ async function loadProducts() {
       </div>
     `;
 
-    // Listeners apenas para produtos
+    // Listeners produtos
     document.getElementById('select-all-products-mobile')?.addEventListener('click', () => {
       Array.from(document.getElementById('products-select-mobile').options).forEach(opt => opt.selected = true);
     });
@@ -52,15 +55,67 @@ async function loadProducts() {
   }
 }
 
-// Carrega fragment de supermercados (sem spans de selecionar todos)
+// ---- Carregar fragment de supermercados ----
 async function loadStores() {
   try {
     const res = await fetch('./fragments/stores_hortolandia.html');
     const htmlText = await res.text();
-
     document.getElementById('stores-container').innerHTML = htmlText;
   } catch (err) {
     console.error('Erro ao carregar fragment stores:', err);
     document.getElementById('stores-container').innerHTML = '<p>Supermercado indisponível</p>';
   }
 }
+
+// ---- Buscar preços e comparar ----
+async function comparePrices() {
+  try {
+    const res = await fetch('./data/prices.json');
+    const pricesData = await res.json();
+
+    // Pegando selects corretos (mobile ou desktop)
+    const productsSelect = document.getElementById('products-select-desktop') || document.getElementById('products-select-mobile');
+    const storesSelect = document.getElementById('stores-select-desktop') || document.getElementById('stores-select-mobile');
+
+    const selectedProducts = Array.from(productsSelect.selectedOptions).map(opt => opt.value);
+    const selectedStores = Array.from(storesSelect.selectedOptions).map(opt => opt.value);
+
+    if (!selectedProducts.length || !selectedStores.length) {
+      alert('Selecione ao menos um produto e um supermercado.');
+      return;
+    }
+
+    // Calcular total por supermercado
+    const totals = selectedStores.map(store => {
+      let totalValue = 0;
+      let foundProducts = 0;
+
+      selectedProducts.forEach(product => {
+        if (pricesData.stores[store] && pricesData.stores[store][product]) {
+          totalValue += pricesData.stores[store][product];
+          foundProducts++;
+        }
+      });
+
+      return { store, totalValue, foundProducts };
+    });
+
+    // Ordenar por menor total
+    totals.sort((a, b) => a.totalValue - b.totalValue);
+
+    // Mostrar os dois mais baratos
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = `
+      <h2>Mercados mais baratos</h2>
+      ${totals.slice(0, 2).map(t => `
+        <div class="market-result">
+          <strong>${t.store}</strong> - Total: R$ ${t.totalValue.toFixed(2)} - Produtos encontrados: ${t.foundProducts}/${selectedProducts.length}
+        </div>
+      `).join('')}
+    `;
+
+  } catch (err) {
+    console.error('Erro ao comparar mercados:', err);
+    document.getElementById('results').innerHTML = '<p>Erro ao buscar preços.</p>';
+  }
+                                                                                     }
