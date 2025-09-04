@@ -1,56 +1,77 @@
-// scrapers/compare.js
+// compare.js
+import fs from "fs";
+import path from "path";
 
-const fs = require("fs");
-const path = require("path");
+// Caminho para os arquivos de dados
+const dataDir = path.resolve("data");
+const pricesFile = path.join(dataDir, "prices.json");
+const storesFile = path.join(dataDir, "stores.json");
 
-function compareMarkets(allStores) {
-  const allProducts = [...new Set(allStores.flatMap(s => s.products.map(p => p.name)))];
+// Função utilitária: carrega JSON
+function loadJSON(file) {
+  return JSON.parse(fs.readFileSync(file, "utf-8"));
+}
 
-  let cheapestPerProduct = [];
-  let totalsPerStore = {};
+// Carrega dados
+const prices = loadJSON(pricesFile); // [{ storeId, product, price }]
+const stores = loadJSON(storesFile); // [{ id, name }]
 
-  for (const product of allProducts) {
-    let cheapest = null;
+// Organiza preços por produto
+const productsMap = {};
+for (const entry of prices) {
+  if (!productsMap[entry.product]) {
+    productsMap[entry.product] = [];
+  }
+  productsMap[entry.product].push({
+    storeId: entry.storeId,
+    price: entry.price,
+  });
+}
 
-    for (const store of allStores) {
-      const item = store.products.find(p => p.name === product);
-      if (item) {
-        if (!cheapest || item.price < cheapest.price) {
-          cheapest = { store: store.store, name: product, price: item.price };
-        }
-        totalsPerStore[store.store] = (totalsPerStore[store.store] || 0) + item.price;
+// Calcula comparações
+const storeTotals = {};
+const cheapestChoices = [];
+
+for (const [product, options] of Object.entries(productsMap)) {
+  // Ordena preços do produto
+  const sorted = options.sort((a, b) => a.price - b.price);
+  const cheapest = sorted[0];
+
+  cheapestChoices.push({
+    product,
+    storeId: cheapest.storeId,
+    price: cheapest.price,
+  });
+
+  // Soma no total do mercado
+  if (!storeTotals[cheapest.storeId]) {
+    storeTotals[cheapest.storeId] = 0;
+  }
+  storeTotals[cheapest.storeId] += cheapest.price;
+}
+
+// Ordena mercados pelo total
+const rankedStores = Object.entries(storeTotals)
+  .map(([storeId, total]) => ({
+    storeId,
+    name: stores.find((s) => s.id === storeId)?.name || storeId,
+    total,
+  }))
+  .sort((a, b) => a.total - b.total);
+
+// Mostra resultados
+console.log("=== Produtos mais baratos por mercado ===");
+for (const choice of cheapestChoices) {
+  const storeName =
+    stores.find((s) => s.id === choice.storeId)?.name || choice.storeId;
+  console.log(
+    `🛒 ${choice.product} → ${storeName} (R$ ${choice.price.toFixed(2)})`
+  );
+}
+
+console.log("\n=== Ranking de mercados (carrinho total) ===");
+for (const [i, store] of rankedStores.entries()) {
+  console.log(
+    `${i + 1}. ${store.name} → Total: R$ ${store.total.toFixed(2)}`
+  );
       }
-    }
-
-    if (cheapest) cheapestPerProduct.push(cheapest);
-  }
-
-  const sortedTotals = Object.entries(totalsPerStore)
-    .map(([store, total]) => ({ store, total }))
-    .sort((a, b) => a.total - b.total);
-
-  return {
-    cheapestPerProduct,
-    totalsPerStore: sortedTotals,
-    bestTwoStores: sortedTotals.slice(0, 2)
-  };
-}
-
-// 🚀 Executa direto se rodar `node compare.js`
-if (require.main === module) {
-  const inputPath = path.join(__dirname, "../data/prices.json");
-  const outputPath = path.join(__dirname, "../data/result.json");
-
-  if (!fs.existsSync(inputPath)) {
-    console.error("❌ Arquivo prices.json não encontrado!");
-    process.exit(1);
-  }
-
-  const prices = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
-  const result = compareMarkets(prices);
-
-  fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
-  console.log(`✅ Comparação concluída! Arquivo salvo em ${outputPath}`);
-}
-
-module.exports = { compareMarkets };
