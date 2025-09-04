@@ -2,26 +2,30 @@
 import fs from 'fs';
 import path from 'path';
 
-const fragmentsDir = path.resolve('fragments');
-const outputDir = path.resolve('site/data');
+// Caminhos ajustados
+const fragmentsDir = path.join('../site', 'fragments'); // pasta com os fragments originais
+const outputFile = path.join('../site', 'fragments_output.html'); // arquivo final consolidado
 
-// Cria a pasta de destino se não existir
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+try {
+  // Lê todos os arquivos da pasta de fragments
+  const files = fs.readdirSync(fragmentsDir);
 
-// Lista todos os fragments
-const fragments = fs.readdirSync(fragmentsDir);
+  // Filtra apenas HTML
+  const htmlFiles = files.filter(file => file.endsWith('.html'));
 
-fragments.forEach(file => {
-  const html = fs.readFileSync(path.join(fragmentsDir, file), 'utf-8');
+  let combinedHtml = '';
 
-  // Extrai <option> ou qualquer outro conteúdo desejado
-  const options = Array.from(html.matchAll(/<option.*?>(.*?)<\/option>/g)).map(m => m[1]);
+  htmlFiles.forEach(file => {
+    const filePath = path.join(fragmentsDir, file);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    combinedHtml += `\n<!-- Fragmento: ${file} -->\n${content}\n`;
+  });
 
-  fs.writeFileSync(
-    path.join(outputDir, file.replace('.html', '.json')),
-    JSON.stringify(options, null, 2),
-    'utf-8'
-  );
-});
+  // Escreve o arquivo combinado
+  fs.writeFileSync(outputFile, combinedHtml, 'utf-8');
 
-console.log('✅ Fragments convertidos para JSON!');
+  console.log(`✅ Fragmentos combinados com sucesso em: ${outputFile}`);
+} catch (err) {
+  console.error('❌ Erro ao gerar os fragments:', err);
+  process.exit(1);
+}
