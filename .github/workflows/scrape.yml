@@ -1,17 +1,16 @@
-# .github/workflows/scrape.yml
 name: Scraper e Deploy
 
 on:
-  workflow_dispatch:   # Permite rodar manualmente
+  workflow_dispatch: # Permite rodar manualmente
   schedule:
-    - cron: "0 */2 * * *"  # A cada 2 horas
+    - cron: "0 */2 * * *" # roda de 2 em 2 horas
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout do repositório
+      # 1️⃣ Pega o repositório
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -21,20 +20,25 @@ jobs:
         with:
           node-version: '18'
 
-      # 3️⃣ Instala dependências (Puppeteer)
+      # 3️⃣ Instala dependências
       - name: Instalar dependências
         working-directory: scrapers
         run: npm install
 
-      # 4️⃣ Rodar scraper Puppeteer
-      - name: Rodar scraper Puppeteer
+      # 4️⃣ Roda o scraper
+      - name: Rodar scraper
         working-directory: scrapers
         run: node scrape.js
 
-      # 5️⃣ Publicar site/ no branch gh-pages
+      # 5️⃣ Roda o comparador
+      - name: Comparar mercados
+        working-directory: scrapers
+        run: node compare.js
+
+      # 6️⃣ Deploy para GitHub Pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
           publish_branch: gh-pages
+          publish_dir: ./site
