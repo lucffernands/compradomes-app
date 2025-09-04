@@ -1,78 +1,50 @@
 // scrapers/scrape.js
-import fs from "fs";
-import path from "path";
 import puppeteer from "puppeteer";
 
-const SITE_DIR = path.join(process.cwd(), "../site"); // pasta site/
-const PRODUCTS = ["Bacon", "Leite", "Cebola"]; // produtos padrão
+const MOBILE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1";
 
 async function scrapeGoodBom(productQuery) {
   const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-
-  // Emular mobile também se quiser
-  const iPhone = puppeteer.devices["iPhone 13"];
-  const mobilePage = await browser.newPage();
-  await mobilePage.emulate(iPhone);
-
   const results = [];
 
-  // Desktop
-  await page.goto(
-    `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(
-      productQuery
-    )}`,
-    { waitUntil: "networkidle2" }
-  );
+  // Define contextos: mobile e desktop
+  const contexts = [
+    { name: "mobile", userAgent: MOBILE_USER_AGENT, viewport: { width: 390, height: 844 } },
+    { name: "desktop", userAgent: null, viewport: { width: 1280, height: 800 } }
+  ];
 
-  const desktopProducts = await page.$$eval(".product-name", nodes =>
-    nodes.map(n => n.textContent.trim())
-  );
+  for (const ctx of contexts) {
+    const page = await browser.newPage();
+    if (ctx.userAgent) await page.setUserAgent(ctx.userAgent);
+    await page.setViewport(ctx.viewport);
 
-  results.push({
-    type: "desktop",
-    products: desktopProducts.length > 0 ? desktopProducts : ["❌ Não disponível"]
-  });
+    const url = `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(productQuery)}`;
+    await page.goto(url, { waitUntil: "networkidle2" });
 
-  // Mobile
-  await mobilePage.goto(
-    `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(
-      productQuery
-    )}`,
-    { waitUntil: "networkidle2" }
-  );
+    // Extrai nomes dos produtos
+    const products = await page.$$eval(".product-name", nodes =>
+      nodes.map(n => n.textContent.trim())
+    );
 
-  const mobileProducts = await mobilePage.$$eval(".product-name", nodes =>
-    nodes.map(n => n.textContent.trim())
-  );
+    results.push({
+      type: ctx.name,
+      products: products.length > 0 ? products : ["❌ Não disponível"]
+    });
 
-  results.push({
-    type: "mobile",
-    products: mobileProducts.length > 0 ? mobileProducts : ["❌ Não disponível"]
-  });
+    await page.close();
+  }
 
   await browser.close();
   return results;
 }
 
-// Função principal: percorre todos os produtos
+// Teste rápido
 (async () => {
   try {
     console.log("✅ Scraper iniciado");
-
-    const allResults = {};
-    for (const product of PRODUCTS) {
-      const data = await scrapeGoodBom(product);
-      allResults[product] = data;
-    }
-
-    // Salva os resultados no site/ em JSON
-    if (!fs.existsSync(SITE_DIR)) fs.mkdirSync(SITE_DIR, { recursive: true });
-
-    const outputPath = path.join(SITE_DIR, "prices.json");
-    fs.writeFileSync(outputPath, JSON.stringify(allResults, null, 2));
-
-    console.log("✅ Scraping concluído. Resultados salvos em site/prices.json");
+    const product = process.argv.find(arg => arg.startsWith("--product="))?.split("=")[1] || "Bacon";
+    const data = await scrapeGoodBom(product);
+    console.log(JSON.stringify(data, null, 2));
     process.exit(0);
   } catch (err) {
     console.error("❌ Erro no scraper:", err);
