@@ -18,6 +18,8 @@ O usuário pode selecionar produtos e supermercados, e o sistema retorna preços
 │  └─ 📄 stores_hortolandia.html
 ├─ 📁 scrapers/
 │  ├─ 📄 scrape.js
+│  ├─ 📄 compare.js
+│  ├─ 📄 build-fragments.js
 │  ├─ 📄 package.json
 │  ├─ 📄 package-lock.json
 │  └─ 📄 utils.js
