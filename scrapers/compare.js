@@ -3,21 +3,25 @@ import fs from 'fs';
 import path from 'path';
 
 const pricesPath = path.resolve('..', 'data', 'prices.json');
+const DEBUG = true; // 🔧 troque para false quando não quiser logar o JSON inteiro
 
 function loadJSON(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 }
 
 function compareMarkets(pricesData) {
-  // Se for objeto, transforma em array
   const marketsArray = Array.isArray(pricesData)
     ? pricesData
     : Object.values(pricesData);
 
-  const marketTotals = marketsArray.map(market => {
-    const total = market.products.reduce((sum, p) => sum + p.price, 0);
+  const validMarkets = marketsArray.filter(
+    m => m && Array.isArray(m.products) && m.products.length > 0
+  );
+
+  const marketTotals = validMarkets.map(market => {
+    const total = market.products.reduce((sum, p) => sum + (p.price || 0), 0);
     const count = market.products.length;
-    return { market: market.market, total, count };
+    return { market: market.market || 'Desconhecido', total, count };
   });
 
   marketTotals.sort((a, b) => a.total - b.total);
@@ -28,7 +32,18 @@ function compareMarkets(pricesData) {
 (async () => {
   try {
     const pricesData = loadJSON(pricesPath);
+
+    if (DEBUG) {
+      console.log('📝 Conteúdo bruto do prices.json:');
+      console.log(JSON.stringify(pricesData, null, 2));
+    }
+
     const topMarkets = compareMarkets(pricesData);
+
+    if (topMarkets.length === 0) {
+      console.log('⚠️ Nenhum mercado válido encontrado no prices.json');
+      process.exit(0);
+    }
 
     console.log('🏆 Top 2 mercados mais baratos:');
     topMarkets.forEach((m, i) => {
