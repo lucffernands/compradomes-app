@@ -1,16 +1,16 @@
 name: Scraper e Deploy
 
 on:
-  workflow_dispatch: # Permite rodar manualmente
+  workflow_dispatch:
   schedule:
-    - cron: "0 */2 * * *" # roda de 2 em 2 horas
+    - cron: "0 */2 * * *" # a cada 2h
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Pega o repositório
+      # 1️⃣ Checkout do repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -20,22 +20,22 @@ jobs:
         with:
           node-version: '18'
 
-      # 3️⃣ Instala dependências
+      # 3️⃣ Instala dependências do scraper
       - name: Instalar dependências
         working-directory: scrapers
-        run: npm install
+        run: npm install || echo "Sem dependências"
 
       # 4️⃣ Roda o scraper
       - name: Rodar scraper
         working-directory: scrapers
         run: node scrape.js
 
-      # 5️⃣ Roda o comparador
-      - name: Comparar mercados
+      # 5️⃣ Converte fragments HTML para JSON
+      - name: Build fragments
         working-directory: scrapers
-        run: node compare.js
+        run: node build-fragments.js
 
-      # 6️⃣ Deploy para GitHub Pages
+      # 6️⃣ Publica no GitHub Pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
