@@ -1,66 +1,55 @@
-// site/app.js
+// app.js
 
-async function loadFragment(path, selectIdMobile, selectIdDesktop, containerId) {
+document.addEventListener('DOMContentLoaded', () => {
+  loadProducts();
+});
+
+// Função para carregar fragment de produtos
+async function loadProducts() {
   try {
-    const res = await fetch(path);
+    const res = await fetch('./fragments/products_hortolandia.html');
     const htmlText = await res.text();
 
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlText;
 
-    const mobileOptions = tempDiv.querySelector(`#${selectIdMobile}`)?.innerHTML || '';
-    const desktopOptions = tempDiv.querySelector(`#${selectIdDesktop}`)?.innerHTML || '';
+    // Mantém os spans de ações
+    const mobileActions = tempDiv.querySelector('.mobile-only .select-actions')?.outerHTML || '';
+    const desktopActions = tempDiv.querySelector('.desktop-only .select-actions')?.outerHTML || '';
 
-    document.getElementById(containerId).innerHTML = `
+    const mobileOptions = tempDiv.querySelector('#products-select-mobile')?.outerHTML || '';
+    const desktopOptions = tempDiv.querySelector('#products-select-desktop')?.outerHTML || '';
+
+    // Monta o container com selects + spans
+    document.getElementById('products-container').innerHTML = `
       <div class="mobile-only">
-        <label for="${selectIdMobile}">Selecione:</label>
-        <select id="${selectIdMobile}" multiple>${mobileOptions}</select>
+        <label for="products-select-mobile">Produtos:</label>
+        ${mobileActions}
+        ${mobileOptions}
       </div>
       <div class="desktop-only">
-        <label for="${selectIdDesktop}">Selecione:</label>
-        <select id="${selectIdDesktop}" multiple size="10">${desktopOptions}</select>
+        <label for="products-select-desktop">Produtos:</label>
+        ${desktopActions}
+        ${desktopOptions}
       </div>
     `;
+
+    // Adiciona listeners para os spans de ação
+    document.getElementById('select-all-products-mobile')?.addEventListener('click', () => {
+      Array.from(document.getElementById('products-select-mobile').options).forEach(opt => opt.selected = true);
+    });
+    document.getElementById('deselect-all-products-mobile')?.addEventListener('click', () => {
+      Array.from(document.getElementById('products-select-mobile').options).forEach(opt => opt.selected = false);
+    });
+    document.getElementById('select-all-products-desktop')?.addEventListener('click', () => {
+      Array.from(document.getElementById('products-select-desktop').options).forEach(opt => opt.selected = true);
+    });
+    document.getElementById('deselect-all-products-desktop')?.addEventListener('click', () => {
+      Array.from(document.getElementById('products-select-desktop').options).forEach(opt => opt.selected = false);
+    });
+
   } catch (err) {
-    console.error(`Erro ao carregar fragment ${path}:`, err);
-    document.getElementById(containerId).innerHTML = '<option>Indisponível</option>';
+    console.error('Erro ao carregar fragment products:', err);
+    document.getElementById('products-container').innerHTML = '<option>Produto indisponível</option>';
   }
-}
-
-async function loadProducts() {
-  await loadFragment(
-    './fragments/products_hortolandia.html',
-    'products-select-mobile',
-    'products-select-desktop',
-    'products-container'
-  );
-}
-
-async function loadStores() {
-  await loadFragment(
-    './fragments/stores_hortolandia.html',
-    'stores-select-mobile',
-    'stores-select-desktop',
-    'stores-container'
-  );
-}
-
-// Inicializa selects
-loadProducts();
-loadStores();
-
-// Botão de busca
-document.getElementById('search-btn').addEventListener('click', () => {
-  const productsMobile = Array.from(document.getElementById('products-select-mobile')?.selectedOptions || []).map(o => o.value);
-  const productsDesktop = Array.from(document.getElementById('products-select-desktop')?.selectedOptions || []).map(o => o.value);
-  const storesMobile = Array.from(document.getElementById('stores-select-mobile')?.selectedOptions || []).map(o => o.value);
-  const storesDesktop = Array.from(document.getElementById('stores-select-desktop')?.selectedOptions || []).map(o => o.value);
-
-  const selectedProducts = productsMobile.length ? productsMobile : productsDesktop;
-  const selectedStores = storesMobile.length ? storesMobile : storesDesktop;
-
-  console.log('Produtos selecionados:', selectedProducts);
-  console.log('Supermercados selecionados:', selectedStores);
-
-  // Aqui você chamaria sua função de buscar preços e mostrar resultados
-});
+                 }
