@@ -1,49 +1,78 @@
-import { chromium, devices } from "playwright";
+// scrapers/scrape.js
+import fs from "fs";
+import path from "path";
+import puppeteer from "puppeteer";
 
-const MOBILE_USER_AGENT = devices['iPhone 13'];
+const SITE_DIR = path.join(process.cwd(), "../site"); // pasta site/
+const PRODUCTS = ["Bacon", "Leite", "Cebola"]; // produtos padrão
 
 async function scrapeGoodBom(productQuery) {
-  // Usa o Chrome nativo do Render
-  const browser = await chromium.launch({
-    channel: "chrome", // <== usa o Chrome do sistema
-    headless: true
-  });
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
 
-  const contexts = [
-    await browser.newContext({ ...MOBILE_USER_AGENT }), // Mobile
-    await browser.newContext() // Desktop
-  ];
+  // Emular mobile também se quiser
+  const iPhone = puppeteer.devices["iPhone 13"];
+  const mobilePage = await browser.newPage();
+  await mobilePage.emulate(iPhone);
 
   const results = [];
 
-  for (const context of contexts) {
-    const page = await context.newPage();
-    const url = `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(productQuery)}`;
-    await page.goto(url, { waitUntil: 'networkidle' });
+  // Desktop
+  await page.goto(
+    `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(
+      productQuery
+    )}`,
+    { waitUntil: "networkidle2" }
+  );
 
-    const products = await page.$$eval('.product-name', nodes =>
-      nodes.map(n => n.textContent.trim())
-    );
+  const desktopProducts = await page.$$eval(".product-name", nodes =>
+    nodes.map(n => n.textContent.trim())
+  );
 
-    results.push({
-      type: context._options.userAgent || 'desktop',
-      products: products.length > 0 ? products : ['❌ Não disponível']
-    });
+  results.push({
+    type: "desktop",
+    products: desktopProducts.length > 0 ? desktopProducts : ["❌ Não disponível"]
+  });
 
-    await context.close();
-  }
+  // Mobile
+  await mobilePage.goto(
+    `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(
+      productQuery
+    )}`,
+    { waitUntil: "networkidle2" }
+  );
+
+  const mobileProducts = await mobilePage.$$eval(".product-name", nodes =>
+    nodes.map(n => n.textContent.trim())
+  );
+
+  results.push({
+    type: "mobile",
+    products: mobileProducts.length > 0 ? mobileProducts : ["❌ Não disponível"]
+  });
 
   await browser.close();
   return results;
 }
 
-// Teste rápido
+// Função principal: percorre todos os produtos
 (async () => {
   try {
     console.log("✅ Scraper iniciado");
-    const product = process.argv.find(arg => arg.startsWith('--product='))?.split('=')[1] || 'Bacon';
-    const data = await scrapeGoodBom(product);
-    console.log(JSON.stringify(data, null, 2));
+
+    const allResults = {};
+    for (const product of PRODUCTS) {
+      const data = await scrapeGoodBom(product);
+      allResults[product] = data;
+    }
+
+    // Salva os resultados no site/ em JSON
+    if (!fs.existsSync(SITE_DIR)) fs.mkdirSync(SITE_DIR, { recursive: true });
+
+    const outputPath = path.join(SITE_DIR, "prices.json");
+    fs.writeFileSync(outputPath, JSON.stringify(allResults, null, 2));
+
+    console.log("✅ Scraping concluído. Resultados salvos em site/prices.json");
     process.exit(0);
   } catch (err) {
     console.error("❌ Erro no scraper:", err);
