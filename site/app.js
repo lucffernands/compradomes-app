@@ -1,31 +1,55 @@
 // site/app.js
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-import { scrapeGoodBom } from "../scrapers/scrape.js";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+// Função para buscar JSON
+async function fetchJSON(path) {
+  const res = await fetch(path);
+  return res.json();
+}
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Renderiza produtos (prices.json)
+async function renderProducts() {
+  const productsData = await fetchJSON('../data/prices.json');
 
-// Servir frontend
-app.use(express.static(path.join(__dirname)));
+  const container = document.getElementById('products-container');
+  container.innerHTML = '';
 
-// Rota da API
-app.get("/api/scrape", async (req, res) => {
-  const { products } = req.query;
-  if (!products) return res.status(400).json({ error: "Parâmetro 'products' é obrigatório" });
+  productsData.forEach(product => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    div.innerHTML = `
+      <strong>${product.name}</strong><br>
+      ${product.prices.map(p => `${p.store}: R$ ${p.price}`).join('<br>')}
+    `;
+    container.appendChild(div);
+  });
+}
 
-  const productList = products.split(",");
-  try {
-    const result = await scrapeGoodBom(productList);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Renderiza comparação dos dois mercados mais baratos (compare.json)
+async function renderCompare() {
+  const compareData = await fetchJSON('../data/compare.json');
 
-// Inicia servidor
-app.listen(PORT, () => console.log(`✅ Servidor rodando em http://localhost:${PORT}`));
+  // Ordena por valor total
+  const sorted = compareData.sort((a, b) => a.total - b.total).slice(0, 2);
+
+  const container = document.getElementById('compare-container');
+  container.innerHTML = '<h3>Melhores opções:</h3>';
+
+  sorted.forEach((market, index) => {
+    const div = document.createElement('div');
+    div.className = 'market';
+    div.innerHTML = `
+      <strong>${index + 1}º lugar: ${market.store}</strong><br>
+      Total: R$ ${market.total.toFixed(2)}<br>
+      Produtos encontrados: ${market.productsFound} / ${market.productsTotal}
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Inicializa
+async function init() {
+  await renderProducts();
+  await renderCompare();
+}
+
+init();
