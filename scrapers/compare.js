@@ -2,7 +2,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// Caminho correto para o data/prices.json
 const pricesPath = path.resolve('..', 'data', 'prices.json');
 
 function loadJSON(filePath) {
@@ -10,18 +9,19 @@ function loadJSON(filePath) {
 }
 
 function compareMarkets(pricesData) {
-  // pricesData esperado no formato:
-  // { market: 'Mercado X', products: [ { name: '', price: 0 } ] }
-  const marketTotals = pricesData.map(market => {
+  // Se for objeto, transforma em array
+  const marketsArray = Array.isArray(pricesData)
+    ? pricesData
+    : Object.values(pricesData);
+
+  const marketTotals = marketsArray.map(market => {
     const total = market.products.reduce((sum, p) => sum + p.price, 0);
     const count = market.products.length;
     return { market: market.market, total, count };
   });
 
-  // Ordena do menor total para o maior
   marketTotals.sort((a, b) => a.total - b.total);
 
-  // Pega os dois mais baratos
   return marketTotals.slice(0, 2);
 }
 
