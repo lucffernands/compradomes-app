@@ -2,9 +2,10 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
+  loadStores();
 });
 
-// Função para carregar fragment de produtos
+// Carrega fragment de produtos e mantém "Selecionar todos / Desmarcar todos"
 async function loadProducts() {
   try {
     const res = await fetch('./fragments/products_hortolandia.html');
@@ -13,14 +14,11 @@ async function loadProducts() {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlText;
 
-    // Mantém os spans de ações e os selects de produtos
     const mobileActions = tempDiv.querySelector('.mobile-only .select-actions')?.outerHTML || '';
     const desktopActions = tempDiv.querySelector('.desktop-only .select-actions')?.outerHTML || '';
-
     const mobileSelect = tempDiv.querySelector('#products-select-mobile')?.outerHTML || '';
     const desktopSelect = tempDiv.querySelector('#products-select-desktop')?.outerHTML || '';
 
-    // Monta o container de produtos
     document.getElementById('products-container').innerHTML = `
       <div class="mobile-only">
         <label for="products-select-mobile">Produtos:</label>
@@ -34,7 +32,7 @@ async function loadProducts() {
       </div>
     `;
 
-    // Adiciona listeners apenas para produtos
+    // Listeners apenas para produtos
     document.getElementById('select-all-products-mobile')?.addEventListener('click', () => {
       Array.from(document.getElementById('products-select-mobile').options).forEach(opt => opt.selected = true);
     });
@@ -50,6 +48,19 @@ async function loadProducts() {
 
   } catch (err) {
     console.error('Erro ao carregar fragment products:', err);
-    document.getElementById('products-container').innerHTML = '<option>Produto indisponível</option>';
+    document.getElementById('products-container').innerHTML = '<p>Produto indisponível</p>';
+  }
+}
+
+// Carrega fragment de supermercados (sem spans de selecionar todos)
+async function loadStores() {
+  try {
+    const res = await fetch('./fragments/stores_hortolandia.html');
+    const htmlText = await res.text();
+
+    document.getElementById('stores-container').innerHTML = htmlText;
+  } catch (err) {
+    console.error('Erro ao carregar fragment stores:', err);
+    document.getElementById('stores-container').innerHTML = '<p>Supermercado indisponível</p>';
   }
 }
