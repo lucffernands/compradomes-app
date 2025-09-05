@@ -2,83 +2,78 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import { JSDOM } from 'jsdom';
 
-const MOBILE_USER_AGENT = {
-  name: 'iPhone 13',
-  userAgent:
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
-  viewport: { width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true },
-};
+const DATA_PATH = path.resolve('./data/prices.json');
+const STORES_HTML = path.resolve('./site/fragments/stores_hortolandia.html');
 
-// Caminho absoluto para o arquivo de preços
-const DATA_FILE = path.resolve('./data/prices.json');
+// Função para ler mercados do HTML
+function getStores() {
+  const html = fs.readFileSync(STORES_HTML, 'utf-8');
+  const dom = new JSDOM(html);
+  const options = [...dom.window.document.querySelectorAll('select option')];
+  return options.map(opt => opt.value).filter(v => v.trim() !== '');
+}
 
-async function scrapeGoodBom(productQuery) {
+// Função para criar o arquivo JSON vazio, se não existir
+function ensureDataFile() {
+  if (!fs.existsSync(DATA_PATH)) {
+    fs.writeFileSync(
+      DATA_PATH,
+      JSON.stringify({ updated_at: null, stores: [], products: {} }, null, 2)
+    );
+  }
+}
+
+// Função para buscar preços de um produto em todos os mercados
+async function scrapeProduct(productQuery) {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
-  const contexts = [
-    { name: 'mobile', options: MOBILE_USER_AGENT },
-    { name: 'desktop', options: {} },
-  ];
+  const stores = getStores();
+  const productPrices = {};
 
-  const results = [];
-
-  for (const ctx of contexts) {
+  for (const store of stores) {
     const page = await browser.newPage();
-
-    if (ctx.name === 'mobile') {
-      await page.setUserAgent(ctx.options.userAgent);
-      await page.setViewport(ctx.options.viewport);
-    }
-
-    const url = `https://www.goodbom.com.br/hortolandia/busca?q=${encodeURIComponent(
+    const url = `https://www.${store.toLowerCase()}.com.br/hortolandia/busca?q=${encodeURIComponent(
       productQuery
     )}`;
-    await page.goto(url, { waitUntil: 'networkidle0' });
-
-    const products = await page.$$eval('.product-name', nodes =>
-      nodes.map(n => n.textContent.trim())
-    );
-
-    const prices = await page.$$eval('.price', nodes =>
-      nodes.map(n => n.textContent.replace('R$', '').replace(',', '.').trim())
-    );
-
-    const combined = products.map((p, i) => ({
-      name: p,
-      price: prices[i] ? parseFloat(prices[i]) : null,
-    }));
-
-    results.push({
-      type: ctx.name,
-      products: combined.length > 0 ? combined : [{ name: '❌ Não disponível', price: null }],
-    });
-
+    try {
+      await page.goto(url, { waitUntil: 'networkidle0' });
+      const priceText = await page.$eval('.price', el => el.textContent.trim());
+      const price = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.'));
+      productPrices[store] = price;
+    } catch (err) {
+      console.log(`❌ Produto não encontrado em ${store}`);
+      productPrices[store] = null;
+    }
     await page.close();
   }
 
   await browser.close();
-  return results;
+  return productPrices;
 }
 
 // Função principal
 async function main() {
   try {
+    ensureDataFile();
     const product =
       process.argv.find(arg => arg.startsWith('--product='))?.split('=')[1] || 'Bacon';
 
     console.log(`🔎 Buscando preços para: ${product}`);
-    const data = await scrapeGoodBom(product);
+    const prices = await scrapeProduct(product);
 
-    // Garante que a pasta exista
-    fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+    const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
+    data.updated_at = new Date().toISOString();
+    if (!data.stores || data.stores.length === 0) data.stores = getStores();
+    if (!data.products) data.products = {};
+    data.products[product] = prices;
 
-    // Salva os resultados
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-    console.log('✅ Preços salvos em', DATA_FILE);
+    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+    console.log('✅ Preços salvos em data/prices.json');
   } catch (err) {
     console.error('❌ Erro no scraper:', err);
     process.exit(1);
