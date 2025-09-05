@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
+      # 2️⃣ Configura Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -27,13 +27,13 @@ jobs:
           npm install
           npm install jsdom
 
-      # 4️⃣ Rodar teste GoodBom (opcional para debug)
-      - name: Testar GoodBom
-        working-directory: scrapers
-        run: node test-goodbom.js || echo "❌ Erro no teste GoodBom, mas workflow continua"
+      # 4️⃣ Teste Savegnago
+      - name: Teste Savegnago
+        working-directory: scrapers/test
+        run: node test-savegnago.js || echo "❌ Erro no teste Savegnago, mas workflow continua"
 
-      # 5️⃣ Roda o scraper completo
-      - name: Rodar scraper completo
+      # 5️⃣ Roda o scraper principal
+      - name: Rodar scraper
         working-directory: scrapers
         run: node scrape.js
 
