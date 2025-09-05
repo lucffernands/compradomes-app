@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Configura Node.js
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -25,20 +25,24 @@ jobs:
         working-directory: scrapers
         run: |
           npm install
-          # Caso precise instalar jsdom manualmente:
           npm install jsdom
 
-      # 4️⃣ Roda o scraper
-      - name: Rodar scraper
+      # 4️⃣ Rodar teste GoodBom (opcional para debug)
+      - name: Testar GoodBom
+        working-directory: scrapers
+        run: node test-goodbom.js || echo "❌ Erro no teste GoodBom, mas workflow continua"
+
+      # 5️⃣ Roda o scraper completo
+      - name: Rodar scraper completo
         working-directory: scrapers
         run: node scrape.js
 
-      # 5️⃣ Converte fragments HTML para JSON
+      # 6️⃣ Converte fragments HTML para JSON
       - name: Build fragments
         working-directory: scrapers
         run: node build-fragments.js
 
-      # 6️⃣ Publica no GitHub Pages
+      # 7️⃣ Publica no GitHub Pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
