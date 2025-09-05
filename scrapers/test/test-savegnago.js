@@ -1,35 +1,37 @@
 // scrapers/test/test-savegnago.js
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer";
 
-const TEST_PRODUCT = 'Bacon';
-
-async function testSavegnago(product) {
+async function testSavegnago() {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
-  const url = `https://www.savegnago.com.br/hortolandia?gad_source=1&gad_campaignid=21901892571&gbraid=0AAAAADlBfB8Jyg8XtdJAtDzpDbXHWUwmS&gclid=EAIaIQobChMIlLq33I_CjwMVGGhIAB0SPge3EAAYAiAAEgILpPD_BwE`;
-  
-  try {
-    await page.goto(url, { waitUntil: 'networkidle0' });
+  const url = "https://www.savegnago.com.br/bacon?_q=bacon&map=ft";
 
-    // Seleciona o preço pelo HTML que você passou
-    const priceText = await page.$eval(
-      '.savegnagoio-store-theme-15-x-priceUnit',
-      el => el.textContent.trim()
+  try {
+    console.log("🔎 Testando Savegnago para: Bacon");
+
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+
+    await page.waitForSelector(
+      ".savegnagoio-store-theme-15-x-priceUnit",
+      { timeout: 20000 }
     );
 
-    console.log(`🔎 Testando Savegnago para: ${product}`);
+    const priceText = await page.$eval(
+      ".savegnagoio-store-theme-15-x-priceUnit",
+      (el) => el.textContent.trim()
+    );
+
     console.log(`✅ Preço encontrado: ${priceText}`);
   } catch (err) {
-    console.error('❌ Erro ao buscar preço Savegnago:', err);
+    console.error("❌ Erro ao buscar preço Savegnago:", err);
   } finally {
     await browser.close();
-    console.log('✅ Teste finalizado');
+    console.log("✅ Teste finalizado");
   }
 }
 
-// Executa o teste
-testSavegnago(TEST_PRODUCT);
+testSavegnago();
