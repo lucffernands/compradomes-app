@@ -1,67 +1,75 @@
 // scrapers/test/test-savegnago.js
-import puppeteer from 'puppeteer';
-
-const MOBILE_USER_AGENT = {
-  name: 'iPhone 13',
-  userAgent:
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
-  viewport: { width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true },
-};
+import puppeteer from "puppeteer";
 
 async function testSavegnago(productQuery) {
   console.log(`🔎 Testando Savegnago para: ${productQuery}`);
+
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
-  await page.setUserAgent(MOBILE_USER_AGENT.userAgent);
-  await page.setViewport(MOBILE_USER_AGENT.viewport);
+  const url = `https://www.savegnago.com.br/${encodeURIComponent(productQuery)}?_q=${encodeURIComponent(productQuery)}&map=ft`;
 
-  const url = `https://www.savegnago.com.br/${encodeURIComponent(productQuery)}?_q=${encodeURIComponent(
-    productQuery
-  )}&map=ft`;
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-  try {
-    // Intercepta imagens e fontes para carregar mais rápido
-    await page.setRequestInterception(true);
-    page.on('request', req => {
-      if (['image', 'stylesheet', 'font'].includes(req.resourceType())) req.abort();
-      else req.continue();
+  // Captura nome + preço
+  const products = await page.$$eval(".vtex-product-summary-2-x-element", nodes =>
+    nodes.slice(0, 5).map(n => {
+      const nameEl = n.querySelector(".vtex-product-summary-2-x-productBrand");
+      const priceEl = n.querySelector(".savegnagoio-store-theme-15-x-priceUnit");
+      return {
+        name: nameEl ? nameEl.textContent.trim() : "Sem nome",
+        priceText: priceEl ? priceEl.textContent.trim() : null,
+      };
+    })
+  );
+
+  await browser.close();
+
+  // Regex para extrair peso/volume
+  function extractQuantity(name) {
+    const match = name.match(/(\d+)\s?(g|kg|ml|l)/i);
+    if (!match) return null;
+
+    let value = parseFloat(match[1].replace(",", "."));
+    let unit = match[2].toLowerCase();
+
+    if (unit === "g") value = value / 1000; // gramas → kg
+    if (unit === "kg") value = value;       // já em kg
+    if (unit === "ml") value = value / 1000; // ml → L
+    if (unit === "l") value = value;         // já em L
+
+    return value; // em kg ou L
+  }
+
+  // Processa produtos
+  const processed = products
+    .filter(p => p.priceText)
+    .map(p => {
+      const price = parseFloat(p.priceText.replace(/[^\d,]/g, "").replace(",", "."));
+      const qty = extractQuantity(p.name);
+      const unitPrice = qty ? price / qty : null;
+      return { ...p, price, qty, unitPrice };
     });
 
-    // Vai para a página e espera pelo preço
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 90000 });
-    await page.waitForSelector('.savegnagoio-store-theme-15-x-priceUnit', { timeout: 60000 });
+  // Pega até 3 produtos com preço válido
+  const top3 = processed.filter(p => p.unitPrice).slice(0, 3);
 
-    // Pega produtos e preços
-    const products = await page.$$eval('.savegnagoio-store-theme-15-x-priceUnit', nodes =>
-      nodes.map(n => {
-        const text = n.textContent.replace(/[^\d,]/g, '').replace(',', '.');
-        return parseFloat(text);
-      })
-    );
-
-    if (!products.length) throw new Error('Nenhum produto por KG ou L encontrado.');
-
-    // Pega os 3 primeiros para cálculo
-    const top3 = products.slice(0, 3);
-    const cheapest = Math.min(...top3);
-
-    console.log('Produtos encontrados (primeiros 3):', top3);
-    console.log('✅ Produto mais barato (por kg/litro):', cheapest.toFixed(2));
-
-  } catch (err) {
-    console.error('❌ Erro ao buscar preço Savegnago:', err.message);
-  } finally {
-    await page.close();
-    await browser.close();
-    console.log('✅ Teste finalizado');
+  if (top3.length === 0) {
+    console.log("❌ Nenhum produto válido encontrado com peso/volume.");
+    return;
   }
+
+  console.log("🛒 Produtos encontrados:");
+  top3.forEach(p => {
+    console.log(`- ${p.name} | Preço: R$ ${p.price.toFixed(2)} | ${p.qty} kg/L | R$ ${(p.unitPrice).toFixed(2)} por kg/L`);
+  });
+
+  const cheapest = top3.reduce((a, b) => (a.unitPrice < b.unitPrice ? a : b));
+  console.log(`✅ Mais barato: ${cheapest.name} → R$ ${cheapest.unitPrice.toFixed(2)} por kg/L`);
 }
 
-// Executa
-const product =
-  process.argv.find(arg => arg.startsWith('--product='))?.split('=')[1] || 'bacon';
-testSavegnago(product);
+// Teste rápido
+testSavegnago("bacon").then(() => console.log("✅ Teste finalizado"));
