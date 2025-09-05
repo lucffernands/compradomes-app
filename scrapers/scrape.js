@@ -4,8 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { JSDOM } from 'jsdom';
 
-const DATA_PATH = path.resolve('./data/prices.json');
-const STORES_HTML = path.resolve('./site/fragments/stores_hortolandia.html');
+// ⚠️ Caminhos ajustados para apontar para a raiz do projeto
+const DATA_PATH = path.resolve('../data/prices.json');
+const STORES_HTML = path.resolve('../site/fragments/stores_hortolandia.html');
 
 // Função para ler mercados do HTML
 function getStores() {
