@@ -3,7 +3,7 @@ import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
 
-const DATA_FILE = path.resolve("data/prices.json");
+const DATA_FILE = path.resolve("data", "prices.json");
 
 async function scrapeGoodBom(productQuery) {
   const browser = await puppeteer.launch({
