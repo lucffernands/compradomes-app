@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout do repo
+      # 1️⃣ Checkout do repositório
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -20,29 +20,24 @@ jobs:
         with:
           node-version: '18'
 
-      # 3️⃣ Instala dependências do scraper
+      # 3️⃣ Instala dependências
       - name: Instalar dependências
         working-directory: scrapers
         run: |
           npm install
           npm install jsdom
 
-      # 4️⃣ Teste Savegnago
-      - name: Teste Savegnago
-        working-directory: scrapers/test
-        run: node test-savegnago.js || echo "❌ Erro no teste Savegnago, mas workflow continua"
-
-      # 5️⃣ Roda o scraper principal
+      # 4️⃣ Roda o scraper principal
       - name: Rodar scraper
         working-directory: scrapers
         run: node scrape.js
 
-      # 6️⃣ Converte fragments HTML para JSON
+      # 5️⃣ Converte fragments HTML para JSON (opcional)
       - name: Build fragments
         working-directory: scrapers
         run: node build-fragments.js
 
-      # 7️⃣ Publica no GitHub Pages
+      # 6️⃣ Publica no GitHub Pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
