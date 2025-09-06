@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout do repositório
+      # 1️⃣ Checkout do repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -20,24 +20,30 @@ jobs:
         with:
           node-version: '18'
 
-      # 3️⃣ Instala dependências
+      # 3️⃣ Instala dependências do scraper
       - name: Instalar dependências
         working-directory: scrapers
         run: |
           npm install
           npm install jsdom
 
-      # 4️⃣ Roda o scraper principal
+      # 4️⃣ Roda o scraper
       - name: Rodar scraper
         working-directory: scrapers
         run: node scrape.js
 
-      # 5️⃣ Converte fragments HTML para JSON (opcional)
+      # 5️⃣ Copia o prices.json para o site
+      - name: Copiar prices.json para o site
+        run: |
+          mkdir -p site/data
+          cp data/prices.json site/data/prices.json
+
+      # 6️⃣ Converte fragments HTML para JSON
       - name: Build fragments
         working-directory: scrapers
         run: node build-fragments.js
 
-      # 6️⃣ Publica no GitHub Pages
+      # 7️⃣ Publica no GitHub Pages
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
